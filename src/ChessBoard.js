@@ -1,73 +1,120 @@
 import React, { useState } from "react";
 import { Chess } from "chess.js";
+import { useDrag, useDrop, DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+
+const Piece = ({ piece, position, onClick }) => {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: "piece",
+    item: { position },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+
+  return (
+    <div
+      ref={drag}
+      className="piece"
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+      onClick={() => onClick(position)} // ✅ Allow clicking to select
+    >
+      {piece}
+    </div>
+  );
+};
+
+const Square = ({ children, position, handleMove, isValidMove, isSelected }) => {
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: "piece",
+    drop: (item) => handleMove(item.position, position),
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
+
+  return (
+    <div
+      ref={drop}
+      className={`square ${(parseInt(position[1]) + position.charCodeAt(0)) % 2 === 0 ? "white" : "black"} 
+      ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""}`}
+      onClick={() => handleMove(null, position)} // ✅ Handle clicking on squares
+    >
+      {children}
+    </div>
+  );
+};
 
 const ChessBoard = () => {
-  const [chess] = useState(new Chess()); // Initialize game
-  const [board, setBoard] = useState(chess.board()); // Board state
+  const [chess] = useState(new Chess());
+  const [board, setBoard] = useState(chess.board());
   const [selected, setSelected] = useState(null);
-  const [validMoves, setValidMoves] = useState([]); // Store valid moves
-  const [invalidMove, setInvalidMove] = useState(null); // Highlight invalid moves
+  const [validMoves, setValidMoves] = useState([]);
 
-  const handleClick = (row, col) => {
-    const position = `${String.fromCharCode(97 + col)}${8 - row}`; // Convert to chess notation (e.g., "e4")
+  const handleMove = (from, to) => {
+    if (!from) from = selected; // If clicking, move from selected piece
 
+    if (!from) return; // If nothing is selected, do nothing
+
+    const possibleMoves = chess.moves({ square: from, verbose: true }).map(m => m.to);
+
+    if (possibleMoves.includes(to)) {
+      const move = chess.move({ from, to });
+
+      if (move) {
+        setBoard(chess.board()); // ✅ Update board state
+        setSelected(null); // ✅ Deselect after move
+        setValidMoves([]); // ✅ Clear valid moves
+      }
+    } else {
+      setSelected(null); // ❌ Deselect on invalid move
+      setValidMoves([]);
+    }
+  };
+
+  const handlePieceClick = (position) => {
     if (selected === position) {
-      // ✅ Deselect the piece if the same square is clicked again
-      setSelected(null);
+      setSelected(null); // ✅ Deselect piece
       setValidMoves([]);
       return;
     }
-    
-    if (selected){
-      const possibleMoves = chess.moves( { square: selected, verbose: true}).map(m => m.to);
 
-      if(possibleMoves.includes(position)){
-        const move = chess.move({ from: selected , to: position});
-
-        if (move){
-          setBoard(chess.board());
-          setValidMoves([]);
-          setSelected(null);
-          return;
-        }
-      }
-
-      setInvalidMove(position);
-      setTimeout(() => setInvalidMove(null), 1000);
-      setSelected(null);
-      setValidMoves([]);
-      return; 
+    const piece = chess.get(position);
+    if (piece) {
+      setSelected(position); // ✅ Select piece
+      const possibleMoves = chess.moves({ square: position, verbose: true }).map(m => m.to);
+      setValidMoves(possibleMoves); // ✅ Show valid moves
     }
-
-      const piece = chess.get(position);
-      if (piece) {
-        setSelected(position); // ✅ Select piece
-        const possibleMoves = chess.moves({ square: position, verbose: true }).map(m => m.to);
-        setValidMoves(possibleMoves); // ✅ Highlight valid moves
-      }
-    };
+  };
 
   return (
-    <div id="chessboard">
-      {board.flat().map((square, index) => {
-        const row = Math.floor(index / 8);
-        const col = index % 8;
-        const position = `${String.fromCharCode(97 + col)}${8 - row}`;
+    <DndProvider backend={HTML5Backend}>
+      <div id="chessboard">
+        {board.flat().map((square, index) => {
+          const row = Math.floor(index / 8);
+          const col = index % 8;
+          const position = `${String.fromCharCode(97 + col)}${8 - row}`;
 
-        return (
-          <div
-            key={position}
-            className={`square ${(row + col) % 2 === 0 ? "white" : "black"} 
-              ${selected === position ? "selected" : ""}
-              ${validMoves.includes(position) ? "valid-move" : ""}
-              ${invalidMove === position ? "invalid-move" : ""}`}
-            onClick={() => handleClick(row, col)}
-          >
-            {square ? (square.color === "b" ? square.type.toLowerCase() : square.type.toUpperCase()) : ""}
-          </div>
-        );
-      })}
-    </div>
+          return (
+            <Square
+              key={position}
+              position={position}
+              handleMove={handleMove}
+              isValidMove={validMoves.includes(position)}
+              isSelected={selected === position}
+            >
+              {square ? (
+                <Piece
+                  piece={square.color === "b" ? square.type.toLowerCase() : square.type.toUpperCase()}
+                  position={position}
+                  onClick={handlePieceClick}
+                />
+              ) : null}
+            </Square>
+          );
+        })}
+      </div>
+    </DndProvider>
   );
 };
 
