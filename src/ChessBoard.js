@@ -21,7 +21,7 @@ const Piece = ({ piece, position, onClick, setValidMoves, chess }) => {
       ref={drag}
       className="piece"
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => onClick(position)} // ✅ Allow clicking to select
+      onClick={() => onClick(position)} // Allow clicking to select
     >
       {piece}
     </div>
@@ -42,7 +42,7 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected }) => 
       ref={drop}
       className={`square ${(parseInt(position[1]) + position.charCodeAt(0)) % 2 === 0 ? "white" : "black"} 
       ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""}`}
-      onClick={() => handleMove(null, position)} // ✅ Handle clicking on squares
+      onClick={() => handleMove(null, position)} // Handle clicking on squares
     >
       {children}
     </div>
@@ -79,9 +79,9 @@ const ChessBoard = () => {
       const move = chess.move({ from, to });
 
       if (move) {
-        setBoard(chess.board()); // ✅ Update board state
-        setSelected(null); // ✅ Deselect after move
-        setValidMoves([]); // ✅ Clear valid moves
+        setBoard(chess.board()); // Update board state
+        setSelected(null); // Deselect after move
+        setValidMoves([]); // Clear valid moves
         checkGameStatus();
       }
     } else {
@@ -92,16 +92,16 @@ const ChessBoard = () => {
 
   const handlePieceClick = (position) => {
     if (selected === position) {
-      setSelected(null); // ✅ Deselect piece
+      setSelected(null); // Deselect piece
       setValidMoves([]);
       return;
     }
 
     const piece = chess.get(position);
     if (piece) {
-      setSelected(position); // ✅ Select piece
+      setSelected(position); // Select piece
       const possibleMoves = chess.moves({ square: position, verbose: true }).map(m => m.to);
-      setValidMoves(possibleMoves); // ✅ Show valid moves
+      setValidMoves(possibleMoves); // Show valid moves
     }
   };
 
