@@ -30,3 +30,11 @@
 .selected {
   background-color: yellow !important;
 }
+
+.invalid-move{
+  background-color: rgba(255, 0, 0, 0,6)
+}
+
+.valid0move{
+  background-color: rgba(0, 255, 0, 0, 0.5)
+}
