@@ -3,50 +3,31 @@ import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-<<<<<<< HEAD
 const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) => {
-  const pieceColor = piece === piece.toUpperCase() ? "w" : "b"; // Determine piece color
-  const isCorrectPlayer = pieceColor === (playerColor === "white" ? "w" : "b"); // ✅ Assign to a variable
+  const pieceColor = piece === piece.toUpperCase() ? "w" : "b"; // White pieces are uppercase, Black are lowercase
+  const pieceClass = pieceColor === "w" ? "white-piece" : "black-piece"; // Assign CSS class
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "piece",
-    item: { position },
-    canDrag: () => isCorrectPlayer, // ✅ Proper function assignment
-=======
-const Piece = ({ piece, position, onClick, setValidMoves, chess , playerColor}) => {
-  const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "piece",
-    item: () => {
-      if(pieceColor !== playerColor) return null;
-      const possibleMoves = chess.moves({ square: position, verbose: true}).map(m => m.to);
-      setValidMoves(possibleMoves);
-      return{position};
-    },
->>>>>>> origin/main
+    item: { position }, // ✅ Always return an object
+    canDrag: pieceColor === (playerColor === "white" ? "w" : "b"), // ✅ Only allow correct side to move
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }), [playerColor]);
+  }));
 
   return (
     <div
-<<<<<<< HEAD
       ref={drag} // ✅ Always apply ref
-      className={`piece ${isCorrectPlayer ? "white-piece" : "black-piece"}`}
+      className={`piece ${pieceClass}`}
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => isCorrectPlayer && onClick(position)} // ✅ Click-to-move restriction
-=======
-      ref={pieceColor === playerColor ? drag : null} // Only allow dragging for the correct side
-      className={`piece ${pieceColor === "w" ? "white-piece" : "black-piece"}`} // ✅ Assign CSS class based on piece color
-      style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => pieceColor === playerColor && onClick(position)} // Allow clicking only for correct side
->>>>>>> origin/main
+      onClick={() => pieceColor === (playerColor === "white" ? "w" : "b") && onClick(position)} // ✅ Click-to-move restriction
     >
       {piece}
     </div>
   );
 };
+
 
 const Square = ({ children, position, handleMove, isValidMove, isSelected }) => {
   const [{ isOver }, drop] = useDrop(() => ({
@@ -76,7 +57,7 @@ const ChessBoard = () => {
   const [validMoves, setValidMoves] = useState([]);
   const [gameStatus, setGameStatus] = useState("");
   const [playerColor, setPlayerColor] = useState("white");
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [autoRotate] = useState(true);
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
@@ -135,12 +116,6 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
-        <button onClick={() => setPlayerColor(playerColor === "white" ? "black" : "white")}>
-          Switch Perspective
-        </button>
-        <button onClick={() => setAutoRotate(!autoRotate)}>
-        {autoRotate ? "Disable Auto-Rotate" : "Enable Auto-Rotate"}
-      </button>
       <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
         {board.flat().map((square, index) => {
           const row = Math.floor(index / 8);
