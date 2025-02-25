@@ -3,10 +3,12 @@ import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-const Piece = ({ piece, position, onClick, setValidMoves, chess }) => {
+const Piece = ({ piece, position, onClick, setValidMoves, chess , playerColor}) => {
+  const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "piece",
     item: () => {
+      if(pieceColor !== playerColor) return null;
       const possibleMoves = chess.moves({ square: position, verbose: true}).map(m => m.to);
       setValidMoves(possibleMoves);
       return{position};
@@ -14,14 +16,14 @@ const Piece = ({ piece, position, onClick, setValidMoves, chess }) => {
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }));
+  }), [playerColor]);
 
   return (
     <div
-      ref={drag}
-      className="piece"
+      ref={pieceColor === playerColor ? drag : null} // Only allow dragging for the correct side
+      className={`piece ${pieceColor === "w" ? "white-piece" : "black-piece"}`} // ✅ Assign CSS class based on piece color
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => onClick(position)} // Allow clicking to select
+      onClick={() => pieceColor === playerColor && onClick(position)} // Allow clicking only for correct side
     >
       {piece}
     </div>
@@ -55,6 +57,7 @@ const ChessBoard = () => {
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [gameStatus, setGameStatus] = useState("");
+  const [playerColor, setPlayerColor] = useState("white");
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
@@ -109,7 +112,10 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
-      <div id="chessboard">
+        <button onClick={() => setPlayerColor(playerColor === "white" ? "black" : "white")}>
+          Switch Perspective
+        </button>
+      <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
         {board.flat().map((square, index) => {
           const row = Math.floor(index / 8);
           const col = index % 8;
