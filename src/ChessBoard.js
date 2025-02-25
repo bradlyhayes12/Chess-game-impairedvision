@@ -3,27 +3,25 @@ import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-const Piece = ({ piece, position, onClick, setValidMoves, chess , playerColor}) => {
-  const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
+const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) => {
+  const pieceColor = piece === piece.toUpperCase() ? "w" : "b"; // Determine piece color
+  const isCorrectPlayer = pieceColor === (playerColor === "white" ? "w" : "b"); // ✅ Assign to a variable
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "piece",
-    item: () => {
-      if(pieceColor !== playerColor) return null;
-      const possibleMoves = chess.moves({ square: position, verbose: true}).map(m => m.to);
-      setValidMoves(possibleMoves);
-      return{position};
-    },
+    item: { position },
+    canDrag: () => isCorrectPlayer, // ✅ Proper function assignment
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }), [playerColor]);
+  }));
 
   return (
     <div
-      ref={pieceColor === playerColor ? drag : null} // Only allow dragging for the correct side
-      className={`piece ${pieceColor === "w" ? "white-piece" : "black-piece"}`} // ✅ Assign CSS class based on piece color
+      ref={drag} // ✅ Always apply ref
+      className={`piece ${isCorrectPlayer ? "white-piece" : "black-piece"}`}
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => pieceColor === playerColor && onClick(position)} // Allow clicking only for correct side
+      onClick={() => isCorrectPlayer && onClick(position)} // ✅ Click-to-move restriction
     >
       {piece}
     </div>
@@ -58,6 +56,7 @@ const ChessBoard = () => {
   const [validMoves, setValidMoves] = useState([]);
   const [gameStatus, setGameStatus] = useState("");
   const [playerColor, setPlayerColor] = useState("white");
+  const [autoRotate, setAutoRotate] = useState(true);
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
@@ -86,6 +85,10 @@ const ChessBoard = () => {
         setSelected(null); // Deselect after move
         setValidMoves([]); // Clear valid moves
         checkGameStatus();
+
+        if (autoRotate){
+          setPlayerColor(chess.turn() === "w" ? "white" : "black");
+        }
       }
     } else {
       setSelected(null); // Deselect on invalid move
@@ -115,6 +118,9 @@ const ChessBoard = () => {
         <button onClick={() => setPlayerColor(playerColor === "white" ? "black" : "white")}>
           Switch Perspective
         </button>
+        <button onClick={() => setAutoRotate(!autoRotate)}>
+          {autoRotate ? "Disable Auto-Rotate" : "Enable Auto-Rotate"}
+        </button>
       <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
         {board.flat().map((square, index) => {
           const row = Math.floor(index / 8);
@@ -136,6 +142,7 @@ const ChessBoard = () => {
                   onClick={handlePieceClick}
                   setValidMoves={setValidMoves}
                   chess={chess}
+                  playerColor={playerColor}
                 />
               ) : null}
             </Square>
