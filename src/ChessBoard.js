@@ -2,26 +2,29 @@ import React, { useState } from "react";
 import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { getAIMove } from "./aiDifficulty";
 
-const Piece = ({ piece, position, onClick, setValidMoves, chess }) => {
+const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) => {
+  const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
+  const isCorrectPlayer = pieceColor === (playerColor === "white" ? "w" : "b");
+  const pieceClass = pieceColor === "w" ? "white-piece" : "black-piece";
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "piece",
-    item: () => {
-      const possibleMoves = chess.moves({ square: position, verbose: true}).map(m => m.to);
-      setValidMoves(possibleMoves);
-      return{position};
-    },
+    item: { position },
+    canDrag: isCorrectPlayer,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
 
+
   return (
     <div
       ref={drag}
-      className="piece"
+      className= { `piece ${pieceClass}`}
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => onClick(position)} // ✅ Allow clicking to select
+      onClick={() => isCorrectPlayer && onClick(position)} // ✅ Allow clicking to select
     >
       {piece}
     </div>
@@ -55,6 +58,9 @@ const ChessBoard = () => {
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [gameStatus, setGameStatus] = useState("");
+  const [playerColor, setPlayerColor] = useState(null);
+  const [difficulty, setDifficulty] = useState("easy");
+  const [isPlayingAgainstAI] = useState(true);
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
@@ -69,9 +75,8 @@ const ChessBoard = () => {
   };
 
   const handleMove = (from, to) => {
-    if (!from) from = selected; // If clicking, move from selected piece
-
-    if (!from) return; // If nothing is selected, do nothing
+    if (!from) from = selected;
+    if (!from) return;
 
     const possibleMoves = chess.moves({ square: from, verbose: true }).map(m => m.to);
 
@@ -79,13 +84,25 @@ const ChessBoard = () => {
       const move = chess.move({ from, to });
 
       if (move) {
-        setBoard(chess.board()); // ✅ Update board state
-        setSelected(null); // ✅ Deselect after move
-        setValidMoves([]); // ✅ Clear valid moves
+        setBoard(chess.board());
+        setSelected(null);
+        setValidMoves([]);
         checkGameStatus();
+
+        // AI Move
+        if (isPlayingAgainstAI && chess.turn() !== (playerColor === "white" ? "w" : "b")) {
+          setTimeout(() => {
+            const aiMove = getAIMove(chess, difficulty);
+            if (aiMove) {
+              chess.move(aiMove);
+              setBoard(chess.board());
+              checkGameStatus();
+            }
+          }, 500);
+        }
       }
     } else {
-      setSelected(null); // ❌ Deselect on invalid move
+      setSelected(null);
       setValidMoves([]);
     }
   };
@@ -104,11 +121,27 @@ const ChessBoard = () => {
       setValidMoves(possibleMoves); // ✅ Show valid moves
     }
   };
+  
+  if (playerColor === null) {
+    return (
+      <div className="choose-side">
+        <h2>Choose Your Side</h2>
+        <button onClick={() => setPlayerColor("white")}>Play as White</button>
+        <button onClick={() => setPlayerColor("black")}>Play as Black</button>
+      </div>
+    );
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
+        <label>Difficulty: </label>
+        <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
       <div id="chessboard">
         {board.flat().map((square, index) => {
           const row = Math.floor(index / 8);
@@ -130,6 +163,7 @@ const ChessBoard = () => {
                   onClick={handlePieceClick}
                   setValidMoves={setValidMoves}
                   chess={chess}
+                  playerColor={playerColor}
                 />
               ) : null}
             </Square>
@@ -142,4 +176,3 @@ const ChessBoard = () => {
 };
 
 export default ChessBoard;
-// hello
