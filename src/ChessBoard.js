@@ -52,7 +52,7 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected }) => 
 };
 
 const ChessBoard = () => {
-  const [chess] = useState(new Chess());
+  const [chess, setChess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
   const [selected, setSelected] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
@@ -60,6 +60,8 @@ const ChessBoard = () => {
   const [playerColor, setPlayerColor] = useState(null);
   const [difficulty, setDifficulty] = useState("easy");
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [moveHistory, setMoveHistory] = useState([]);
+  const [captured, setCaptured] = useState([]);
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
@@ -86,14 +88,18 @@ const ChessBoard = () => {
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
+        setMoveHistory([...moveHistory, move.san]);
+        if (move.captured) setCaptured([...captured, move.captured]);
         checkGameStatus();
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
           setTimeout(() => {
             const aiMove = getAIMove(chess, difficulty);
             if (aiMove) {
-              chess.move(aiMove);
+              const aiMoveResult = chess.move(aiMove);
               setBoard(chess.board());
+              setMoveHistory(prev => [...prev, aiMoveResult.san]);
+              if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
               checkGameStatus();
             }
           }, 500);
@@ -118,6 +124,19 @@ const ChessBoard = () => {
       const possibleMoves = chess.moves({ square: position, verbose: true }).map(m => m.to);
       setValidMoves(possibleMoves);
     }
+  };
+
+  const restartGame = () => {
+    const newGame = new Chess();
+    setChess(newGame);
+    setBoard(newGame.board());
+    setSelected(null);
+    setValidMoves([]);
+    setGameStatus("");
+    setMoveHistory([]);
+    setCaptured([]);
+    setPlayerColor(null);
+    setIsGameStarted(false);
   };
 
   if (!isGameStarted) {
@@ -152,6 +171,7 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
+        <button onClick={restartGame}>Restart Game</button>
         <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
           {board.flat().map((square, index) => {
             const row = Math.floor(index / 8);
@@ -179,6 +199,16 @@ const ChessBoard = () => {
               </Square>
             );
           })}
+        </div>
+        <div className="move-history">
+          <h3>Move History</h3>
+          <ol>
+            {moveHistory.map((move, i) => <li key={i}>{move}</li>)}
+          </ol>
+        </div>
+        <div className="captured-pieces">
+          <h3>Captured Pieces</h3>
+          <p>{captured.join(", ")}</p>
         </div>
       </div>
     </DndProvider>
