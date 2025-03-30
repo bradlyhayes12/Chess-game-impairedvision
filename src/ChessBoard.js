@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { getAIMove } from "./aiDifficulty";
+import { getAIMove, makeAIMoveIfBlackStarts } from "./aiDifficulty";
 
 const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) => {
   const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
@@ -18,13 +18,12 @@ const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) 
     }),
   }));
 
-
   return (
     <div
       ref={drag}
-      className= { `piece ${pieceClass}`}
+      className={`piece ${pieceClass}`}
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => isCorrectPlayer && onClick(position)} // ✅ Allow clicking to select
+      onClick={() => isCorrectPlayer && onClick(position)}
     >
       {piece}
     </div>
@@ -45,7 +44,7 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected }) => 
       ref={drop}
       className={`square ${(parseInt(position[1]) + position.charCodeAt(0)) % 2 === 0 ? "white" : "black"} 
       ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""}`}
-      onClick={() => handleMove(null, position)} // ✅ Handle clicking on squares
+      onClick={() => handleMove(null, position)}
     >
       {children}
     </div>
@@ -60,14 +59,14 @@ const ChessBoard = () => {
   const [gameStatus, setGameStatus] = useState("");
   const [playerColor, setPlayerColor] = useState(null);
   const [difficulty, setDifficulty] = useState("easy");
-  const [isPlayingAgainstAI] = useState(true);
+  const [isGameStarted, setIsGameStarted] = useState(false);
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
       setGameStatus(`Checkmate! ${chess.turn() === "w" ? "Black" : "White"} wins!`);
     } else if (chess.isCheck()) {
       setGameStatus(`Check! ${chess.turn() === "w" ? "White" : "Black"} is in check.`);
-    } else if (chess.isDraw()){
+    } else if (chess.isDraw()) {
       setGameStatus("Game Drawn!");
     } else {
       setGameStatus("");
@@ -89,8 +88,7 @@ const ChessBoard = () => {
         setValidMoves([]);
         checkGameStatus();
 
-        // AI Move
-        if (isPlayingAgainstAI && chess.turn() !== (playerColor === "white" ? "w" : "b")) {
+        if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
           setTimeout(() => {
             const aiMove = getAIMove(chess, difficulty);
             if (aiMove) {
@@ -109,42 +107,44 @@ const ChessBoard = () => {
 
   const handlePieceClick = (position) => {
     if (selected === position) {
-      setSelected(null); // ✅ Deselect piece
+      setSelected(null);
       setValidMoves([]);
       return;
     }
 
     const piece = chess.get(position);
     if (piece) {
-      setSelected(position); // ✅ Select piece
+      setSelected(position);
       const possibleMoves = chess.moves({ square: position, verbose: true }).map(m => m.to);
-      setValidMoves(possibleMoves); // ✅ Show valid moves
+      setValidMoves(possibleMoves);
     }
   };
-  
-  if (playerColor === null) {
-    return (
-      <div className="choose-side">
-      <h2>Choose Your Side</h2>
-      <button onClick={() => setPlayerColor("white")}>Play as White</button>
-      <button
-        onClick={() => {
-          setPlayerColor("black");
 
-          // AI (white) makes first move after short delay
+  if (!isGameStarted) {
+    return (
+      <div className="setup-menu">
+        <h2>Choose Your Side</h2>
+        <div>
+          <label>Difficulty: </label>
+          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <button onClick={() => {
+          setPlayerColor("white");
+          setIsGameStarted(true);
+        }}>Play as White</button>
+
+        <button onClick={() => {
+          setPlayerColor("black");
+          setIsGameStarted(true);
           setTimeout(() => {
-            const aiMove = getAIMove(chess, difficulty);
-            if (aiMove) {
-              chess.move(aiMove);
-              setBoard(chess.board());
-              checkGameStatus();
-            }
-          }, 500);
-        }}
-      >
-        Play as Black
-      </button>
-    </div>
+            makeAIMoveIfBlackStarts(chess, "black", difficulty, setBoard, checkGameStatus);
+          }, 300);
+        }}>Play as Black</button>
+      </div>
     );
   }
 
@@ -152,40 +152,34 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
-        <label>Difficulty: </label>
-        <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      <div id="chessboard" className= {playerColor === "black" ? "flipped" : ""}>
-        {board.flat().map((square, index) => {
-          const row = Math.floor(index / 8);
-          const col = index % 8;
-          const position = `${String.fromCharCode(97 + col)}${8 - row}`;
+        <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
+          {board.flat().map((square, index) => {
+            const row = Math.floor(index / 8);
+            const col = index % 8;
+            const position = `${String.fromCharCode(97 + col)}${8 - row}`;
 
-          return (
-            <Square
-              key={position}
-              position={position}
-              handleMove={handleMove}
-              isValidMove={validMoves.includes(position)}
-              isSelected={selected === position}
-            >
-              {square ? (
-                <Piece
-                  piece={square.color === "b" ? square.type.toLowerCase() : square.type.toUpperCase()}
-                  position={position}
-                  onClick={handlePieceClick}
-                  setValidMoves={setValidMoves}
-                  chess={chess}
-                  playerColor={playerColor}
-                />
-              ) : null}
-            </Square>
-          );
-        })}
-      </div>
+            return (
+              <Square
+                key={position}
+                position={position}
+                handleMove={handleMove}
+                isValidMove={validMoves.includes(position)}
+                isSelected={selected === position}
+              >
+                {square ? (
+                  <Piece
+                    piece={square.color === "b" ? square.type.toLowerCase() : square.type.toUpperCase()}
+                    position={position}
+                    onClick={handlePieceClick}
+                    setValidMoves={setValidMoves}
+                    chess={chess}
+                    playerColor={playerColor}
+                  />
+                ) : null}
+              </Square>
+            );
+          })}
+        </div>
       </div>
     </DndProvider>
   );

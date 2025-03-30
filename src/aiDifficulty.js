@@ -1,5 +1,3 @@
-// src/aiDifficulty.js
-
 export function getAIMove(chess, level = "easy") {
     const moves = chess.moves({ verbose: true });
     if (moves.length === 0) return null;
@@ -27,4 +25,16 @@ export function getAIMove(chess, level = "easy") {
     const moves = chess.moves({ verbose: true });
     // TEMP: same as easy, placeholder for real engine logic
     return moves[Math.floor(Math.random() * moves.length)];
+  }
+  
+  export function makeAIMoveIfBlackStarts(chess, playerColor, difficulty, setBoard, checkGameStatus) {
+    // Trigger AI move only if player chooses black AND AI (white) starts
+    if (playerColor === "black" && chess.turn() === "w") {
+      const aiMove = getAIMove(chess, difficulty);
+      if (aiMove) {
+        chess.move(aiMove);
+        setBoard(chess.board());
+        checkGameStatus();
+      }
+    }
   }
