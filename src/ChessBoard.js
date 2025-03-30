@@ -88,8 +88,8 @@ const ChessBoard = () => {
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
-        setMoveHistory([...moveHistory, move.san]);
-        if (move.captured) setCaptured([...captured, move.captured]);
+        setMoveHistory(prev => [...prev, move.san]);
+        if (move.captured) setCaptured(prev => [...prev, move.captured]);
         checkGameStatus();
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
@@ -139,6 +139,21 @@ const ChessBoard = () => {
     setIsGameStarted(false);
   };
 
+  const startGameAsBlack = () => {
+    setPlayerColor("black");
+    setIsGameStarted(true);
+    setTimeout(() => {
+      const aiMove = getAIMove(chess, difficulty);
+      if (aiMove) {
+        const aiMoveResult = chess.move(aiMove);
+        setBoard(chess.board());
+        setMoveHistory([aiMoveResult.san]);
+        if (aiMoveResult.captured) setCaptured([aiMoveResult.captured]);
+        checkGameStatus();
+      }
+    }, 300);
+  };
+
   if (!isGameStarted) {
     return (
       <div className="setup-menu">
@@ -156,13 +171,7 @@ const ChessBoard = () => {
           setIsGameStarted(true);
         }}>Play as White</button>
 
-        <button onClick={() => {
-          setPlayerColor("black");
-          setIsGameStarted(true);
-          setTimeout(() => {
-            makeAIMoveIfBlackStarts(chess, "black", difficulty, setBoard, checkGameStatus);
-          }, 300);
-        }}>Play as Black</button>
+        <button onClick={startGameAsBlack}>Play as Black</button>
       </div>
     );
   }
