@@ -5,6 +5,7 @@
   width: 480px;
   height: 480px;
   border: 2px solid black;
+  /* transition: transform 0.5s ease; */
 }
 
 .square {
@@ -50,4 +51,12 @@
 
 .invalid-move {
   background-color: rgba(255, 0, 0, 0.6) !important; /* Flash red for invalid move */
+}
+
+#chessboard.flipped {
+  transform: rotate(180deg);
+}
+
+#chessboard.flipped .square{
+  transform: rotate(180deg);
 }

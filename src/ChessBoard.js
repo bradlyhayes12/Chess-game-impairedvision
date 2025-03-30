@@ -125,10 +125,26 @@ const ChessBoard = () => {
   if (playerColor === null) {
     return (
       <div className="choose-side">
-        <h2>Choose Your Side</h2>
-        <button onClick={() => setPlayerColor("white")}>Play as White</button>
-        <button onClick={() => setPlayerColor("black")}>Play as Black</button>
-      </div>
+      <h2>Choose Your Side</h2>
+      <button onClick={() => setPlayerColor("white")}>Play as White</button>
+      <button
+        onClick={() => {
+          setPlayerColor("black");
+
+          // AI (white) makes first move after short delay
+          setTimeout(() => {
+            const aiMove = getAIMove(chess, difficulty);
+            if (aiMove) {
+              chess.move(aiMove);
+              setBoard(chess.board());
+              checkGameStatus();
+            }
+          }, 500);
+        }}
+      >
+        Play as Black
+      </button>
+    </div>
     );
   }
 
@@ -142,7 +158,7 @@ const ChessBoard = () => {
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select>
-      <div id="chessboard">
+      <div id="chessboard" className= {playerColor === "black" ? "flipped" : ""}>
         {board.flat().map((square, index) => {
           const row = Math.floor(index / 8);
           const col = index % 8;
