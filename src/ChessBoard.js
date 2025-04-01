@@ -45,6 +45,8 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected }) => 
       className={`square ${(parseInt(position[1]) + position.charCodeAt(0)) % 2 === 0 ? "white" : "black"} 
       ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""}`}
       onClick={() => handleMove(null, position)}
+      aria-label={'Square ${position}${isValidMove ? ", valid move" : ""}${isSelected ? ", selected" : ""}'}
+      tabIndex={0}
     >
       {children}
     </div>
@@ -192,6 +194,9 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
+        <div role="status" aria-live="polite" style={{position: "absolute", left: "-9999px"}}>
+          {gameStatus}
+        </div>
         <button onClick={restartGame}>Restart Game</button>
         <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
           {board.flat().map((square, index) => {
@@ -206,6 +211,7 @@ const ChessBoard = () => {
                 handleMove={handleMove}
                 isValidMove={validMoves.includes(position)}
                 isSelected={selected === position}
+                isFocused={focusedSquare === position}
               >
                 {square ? (
                   <Piece
