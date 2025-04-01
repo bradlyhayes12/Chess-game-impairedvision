@@ -51,6 +51,13 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected }) => 
   );
 };
 
+const Speak = (text) => {
+  const synth = window.speechSynthesis;
+  if (synth.speaking) synth.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  synth.speak(utterance);
+};
+
 const ChessBoard = () => {
   const [chess, setChess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
