@@ -92,6 +92,7 @@ const ChessBoard = () => {
       const move = chess.move({ from, to });
 
       if (move) {
+        Speak('${move.piece} to ${move.to}');
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
@@ -104,10 +105,14 @@ const ChessBoard = () => {
             const aiMove = getAIMove(chess, difficulty);
             if (aiMove) {
               const aiMoveResult = chess.move(aiMove);
-              setBoard(chess.board());
-              setMoveHistory(prev => [...prev, aiMoveResult.san]);
-              if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
-              checkGameStatus();
+              
+              if(aiMoveResult){
+                Speak('Computer played ${aiMoveResult.piece} to ${aiMoveResult.to}')
+                setBoard(chess.board());
+                setMoveHistory(prev => [...prev, aiMoveResult.san]);
+                if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
+                  checkGameStatus();
+              }
             }
           }, 500);
         }
