@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -30,7 +30,7 @@ const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) 
   );
 };
 
-const Square = ({ children, position, handleMove, isValidMove, isSelected }) => {
+const Square = ({ children, position, handleMove, isValidMove, isSelected, isFocused }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "piece",
     drop: (item) => handleMove(item.position, position),
@@ -43,7 +43,7 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected }) => 
     <div
       ref={drop}
       className={`square ${(parseInt(position[1]) + position.charCodeAt(0)) % 2 === 0 ? "white" : "black"} 
-      ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""}`}
+      ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""} ${isFocused ? "focused" : ""}`}
       onClick={() => handleMove(null, position)}
       aria-label={"Square " + position +
                   (isValidMove ? ", valid move" : "") +
@@ -143,6 +143,42 @@ const ChessBoard = () => {
       setValidMoves(possibleMoves);
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const file = focusedSquare.charCodeAt(0); // 'a' = 97
+      const rank = parseInt(focusedSquare[1]);
+  
+      let newFile = file;
+      let newRank = rank;
+  
+      if (e.key === "ArrowUp") newRank++;
+      if (e.key === "ArrowDown") newRank--;
+      if (e.key === "ArrowLeft") newFile--;
+      if (e.key === "ArrowRight") newFile++;
+  
+      if (newFile >= 97 && newFile <= 104 && newRank >= 1 && newRank <= 8) {
+        const newSquare = `${String.fromCharCode(newFile)}${newRank}`;
+        setFocusedSquare(newSquare);
+  
+        const piece = chess.get(newSquare);
+        Speak(
+          piece
+            ? `${piece.color === "w" ? "White" : "Black"} ${piece.type} on ${newSquare}`
+            : `Empty square ${newSquare}`
+        );
+      }
+  
+      if (e.key === "Enter" || e.key === " ") {
+        handlePieceClick(focusedSquare);
+        handleMove(null, focusedSquare);
+      }
+    };
+  
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [focusedSquare, chess]);
+
 
   const restartGame = () => {
     const newGame = new Chess();
