@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { getAIMove, makeAIMoveIfBlackStarts } from "./aiDifficulty";
+import { getAIMove } from "./aiDifficulty";
 
 const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) => {
   const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
@@ -45,7 +45,10 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected }) => 
       className={`square ${(parseInt(position[1]) + position.charCodeAt(0)) % 2 === 0 ? "white" : "black"} 
       ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""}`}
       onClick={() => handleMove(null, position)}
-      aria-label={'Square ${position}${isValidMove ? ", valid move" : ""}${isSelected ? ", selected" : ""}'}
+      aria-label={"Square " + position +
+                  (isValidMove ? ", valid move" : "") +
+                  (isSelected ? ", selected" : "")
+                  }
       tabIndex={0}
     >
       {children}
@@ -71,6 +74,7 @@ const ChessBoard = () => {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [moveHistory, setMoveHistory] = useState([]);
   const [captured, setCaptured] = useState([]);
+  const [focusedSquare, setFocusedSquare] = useState("e2");
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
