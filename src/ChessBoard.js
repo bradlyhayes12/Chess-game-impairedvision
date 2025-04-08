@@ -95,10 +95,17 @@ const ChessBoard = () => {
     const possibleMoves = chess.moves({ square: from, verbose: true }).map(m => m.to);
 
     if (possibleMoves.includes(to)) {
-      const move = chess.move({ from, to });
+      const piece = chess.get(from);
+
+      let moveOptions = { from, to};
+      if (piece.type === "p" && (to[1] === "8" || to[1] === "1")) {
+        moveOptions.promotion = "q";
+      }
+
+      const move = chess.move(moveOptions);
 
       if (move) {
-        Speak('${move.piece} to ${move.to}');
+        Speak(`${move.piece} to ${move.to}`);
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
@@ -113,7 +120,7 @@ const ChessBoard = () => {
               const aiMoveResult = chess.move(aiMove);
               
               if(aiMoveResult){
-                Speak('Computer played ${aiMoveResult.piece} to ${aiMoveResult.to}')
+                Speak(`Computer played ${aiMoveResult.piece} to ${aiMoveResult.to}`)
                 setBoard(chess.board());
                 setMoveHistory(prev => [...prev, aiMoveResult.san]);
                 if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
