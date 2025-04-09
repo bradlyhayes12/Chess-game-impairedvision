@@ -1,8 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getAIMove } from "./aiDifficulty";
+
+const Speak = (text) => {
+  const synth = window.speechSynthesis;
+  if (synth.speaking) synth.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.9;
+  synth.speak(utterance);
+};
+
+const pieceNames = {
+  p: "Pawn",
+  n: "Knight",
+  b: "Bishop",
+  r: "Rook",
+  q: "Queen",
+  k: "King"
+};
+
+const speakMove = (move, chess, prefix = "") => {
+  if (!move) return;
+  let text = prefix;
+  const pieceName = pieceNames[move.piece.toLowerCase()] || move.piece;
+
+  if (move.flags.includes("c")) {
+    text += `${pieceName} captures on ${move.to.toUpperCase()}`;
+  } else {
+    text += `${pieceName} to ${move.to.toUpperCase()}`;
+  }
+
+  if (move.flags.includes("p")) {
+    text += ` and promotes to Queen`;
+  }
+
+  Speak(text);
+
+  setTimeout(() => {
+    if (chess.isCheckmate()) {
+      Speak("Checkmate!");
+    } else if (chess.isCheck()) {
+      Speak("Check!");
+    }
+  }, 1000);
+};
 
 const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) => {
   const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
@@ -45,22 +88,11 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected, isFoc
       className={`square ${(parseInt(position[1]) + position.charCodeAt(0)) % 2 === 0 ? "white" : "black"} 
       ${isOver ? "hover" : ""} ${isValidMove ? "valid-move" : ""} ${isSelected ? "selected" : ""} ${isFocused ? "focused" : ""}`}
       onClick={() => handleMove(null, position)}
-      aria-label={"Square " + position +
-                  (isValidMove ? ", valid move" : "") +
-                  (isSelected ? ", selected" : "")
-                  }
       tabIndex={0}
     >
       {children}
     </div>
   );
-};
-
-const Speak = (text) => {
-  const synth = window.speechSynthesis;
-  if (synth.speaking) synth.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  synth.speak(utterance);
 };
 
 const ChessBoard = () => {
@@ -76,7 +108,7 @@ const ChessBoard = () => {
   const [captured, setCaptured] = useState([]);
   const [focusedSquare, setFocusedSquare] = useState("e2");
 
-  const checkGameStatus = () => {
+  const checkGameStatus = useCallback(() => {
     if (chess.isCheckmate()) {
       setGameStatus(`Checkmate! ${chess.turn() === "w" ? "Black" : "White"} wins!`);
     } else if (chess.isCheck()) {
@@ -86,9 +118,23 @@ const ChessBoard = () => {
     } else {
       setGameStatus("");
     }
-  };
+  }, [chess]);
 
-  const handleMove = (from, to) => {
+  const handlePieceClick = useCallback((position) => {
+    if (selected === position) {
+      setSelected(null);
+      setValidMoves([]);
+      return;
+    }
+    const piece = chess.get(position);
+    if (piece) {
+      setSelected(position);
+      const possibleMoves = chess.moves({ square: position, verbose: true }).map(m => m.to);
+      setValidMoves(possibleMoves);
+    }
+  }, [chess, selected]);
+
+  const handleMove = useCallback((from, to) => {
     if (!from) from = selected;
     if (!from) return;
 
@@ -96,16 +142,12 @@ const ChessBoard = () => {
 
     if (possibleMoves.includes(to)) {
       const piece = chess.get(from);
-
-      let moveOptions = { from, to};
-      if (piece.type === "p" && (to[1] === "8" || to[1] === "1")) {
-        moveOptions.promotion = "q";
-      }
+      let moveOptions = { from, to };
+      if (piece.type === "p" && (to[1] === "8" || to[1] === "1")) moveOptions.promotion = "q";
 
       const move = chess.move(moveOptions);
-
       if (move) {
-        Speak(`${move.piece} to ${move.to}`);
+        speakMove(move, chess);
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
@@ -118,74 +160,73 @@ const ChessBoard = () => {
             const aiMove = getAIMove(chess, difficulty);
             if (aiMove) {
               const aiMoveResult = chess.move(aiMove);
-              
-              if(aiMoveResult){
-                Speak(`Computer played ${aiMoveResult.piece} to ${aiMoveResult.to}`)
-                setBoard(chess.board());
-                setMoveHistory(prev => [...prev, aiMoveResult.san]);
-                if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
+              if (aiMoveResult) {
+                speakMove(aiMoveResult, chess, "Computer played ");
+                setTimeout(() => {
+                  setBoard(chess.board());
+                  setMoveHistory(prev => [...prev, aiMoveResult.san]);
+                  if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
                   checkGameStatus();
+                }, 800);
               }
             }
-          }, 500);
+          }, 1400);
         }
       }
     } else {
       setSelected(null);
       setValidMoves([]);
     }
-  };
-
-  const handlePieceClick = (position) => {
-    if (selected === position) {
-      setSelected(null);
-      setValidMoves([]);
-      return;
-    }
-
-    const piece = chess.get(position);
-    if (piece) {
-      setSelected(position);
-      const possibleMoves = chess.moves({ square: position, verbose: true }).map(m => m.to);
-      setValidMoves(possibleMoves);
-    }
-  };
+  }, [chess, selected, playerColor, difficulty, checkGameStatus]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      const file = focusedSquare.charCodeAt(0); // 'a' = 97
+      const file = focusedSquare.charCodeAt(0);
       const rank = parseInt(focusedSquare[1]);
-  
       let newFile = file;
       let newRank = rank;
-  
+
       if (e.key === "ArrowUp") newRank++;
       if (e.key === "ArrowDown") newRank--;
       if (e.key === "ArrowLeft") newFile--;
       if (e.key === "ArrowRight") newFile++;
-  
+
       if (newFile >= 97 && newFile <= 104 && newRank >= 1 && newRank <= 8) {
         const newSquare = `${String.fromCharCode(newFile)}${newRank}`;
         setFocusedSquare(newSquare);
-  
+
         const piece = chess.get(newSquare);
-        Speak(
-          piece
-            ? `${piece.color === "w" ? "White" : "Black"} ${piece.type} on ${newSquare}`
-            : `Empty square ${newSquare}`
-        );
+        Speak(piece ? `${piece.color === "w" ? "White" : "Black"} ${piece.type} on ${newSquare}` : `Empty square ${newSquare}`);
       }
-  
+
       if (e.key === "Enter" || e.key === " ") {
         handlePieceClick(focusedSquare);
         handleMove(null, focusedSquare);
       }
     };
-  
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [focusedSquare, chess]);
+  }, [focusedSquare, chess, handlePieceClick, handleMove]);
 
+  const startGameAsBlack = () => {
+    setPlayerColor("black");
+    setIsGameStarted(true);
+    setTimeout(() => {
+      const aiMove = getAIMove(chess, difficulty);
+      if (aiMove) {
+        const aiMoveResult = chess.move(aiMove);
+        if (aiMoveResult) {
+          speakMove(aiMoveResult, chess, "Computer played ");
+          setTimeout(() => {
+            setBoard(chess.board());
+            setMoveHistory([aiMoveResult.san]);
+            if (aiMoveResult.captured) setCaptured([aiMoveResult.captured]);
+            checkGameStatus();
+          }, 800);
+        }
+      }
+    }, 300);
+  };
 
   const restartGame = () => {
     const newGame = new Chess();
@@ -196,23 +237,9 @@ const ChessBoard = () => {
     setGameStatus("");
     setMoveHistory([]);
     setCaptured([]);
+    setFocusedSquare("e2");
     setPlayerColor(null);
     setIsGameStarted(false);
-  };
-
-  const startGameAsBlack = () => {
-    setPlayerColor("black");
-    setIsGameStarted(true);
-    setTimeout(() => {
-      const aiMove = getAIMove(chess, difficulty);
-      if (aiMove) {
-        const aiMoveResult = chess.move(aiMove);
-        setBoard(chess.board());
-        setMoveHistory([aiMoveResult.san]);
-        if (aiMoveResult.captured) setCaptured([aiMoveResult.captured]);
-        checkGameStatus();
-      }
-    }, 300);
   };
 
   if (!isGameStarted) {
@@ -227,11 +254,7 @@ const ChessBoard = () => {
             <option value="hard">Hard</option>
           </select>
         </div>
-        <button onClick={() => {
-          setPlayerColor("white");
-          setIsGameStarted(true);
-        }}>Play as White</button>
-
+        <button onClick={() => { setPlayerColor("white"); setIsGameStarted(true); }}>Play as White</button>
         <button onClick={startGameAsBlack}>Play as Black</button>
       </div>
     );
@@ -241,16 +264,12 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
-        <div role="status" aria-live="polite" style={{position: "absolute", left: "-9999px"}}>
-          {gameStatus}
-        </div>
-        <button onClick={restartGame}>Restart Game</button>
+        <button onClick={restartGame}>Restart</button>
         <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
           {board.flat().map((square, index) => {
             const row = Math.floor(index / 8);
             const col = index % 8;
             const position = `${String.fromCharCode(97 + col)}${8 - row}`;
-
             return (
               <Square
                 key={position}
@@ -273,16 +292,6 @@ const ChessBoard = () => {
               </Square>
             );
           })}
-        </div>
-        <div className="move-history">
-          <h3>Move History</h3>
-          <ol>
-            {moveHistory.map((move, i) => <li key={i}>{move}</li>)}
-          </ol>
-        </div>
-        <div className="captured-pieces">
-          <h3>Captured Pieces</h3>
-          <p>{captured.join(", ")}</p>
         </div>
       </div>
     </DndProvider>
