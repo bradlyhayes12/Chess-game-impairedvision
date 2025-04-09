@@ -186,7 +186,14 @@ const ChessBoard = () => {
         setFocusedSquare(newSquare);
 
         const piece = chess.get(newSquare);
-        Speak(piece ? `${piece.color === "w" ? "White" : "Black"} ${piece.type} on ${newSquare}` : `Empty square ${newSquare}`);
+        if (piece) {
+          const colorName = piece.color === "w" ? "White" : "Black";
+          const pieceName = pieceNames[piece.type?.toLowerCase()] || "Piece";
+          Speak(`${colorName} ${pieceName} on ${newSquare}`);
+        } else {
+          Speak(`Empty square ${newSquare}`);
+        }
+        
       }
 
       if (e.key === "Enter" || e.key === " ") {
