@@ -70,6 +70,14 @@
   margin-right: 40px; /* Space between board and move history */
 }
 
+#chessboard.flipped {
+  transform: rotate(180deg);
+}
+
+#chessboard.flipped .square {
+  transform: rotate(180deg);
+}
+
 .move-history-panel {
   width: 200px;
   background-color: #d3d3d3; /* light gray */
