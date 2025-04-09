@@ -124,6 +124,11 @@
   font-weight: bold;
 }
 
+.square.focused {
+  outline: 3px solid yellow;
+  z-index: 1;
+}
+
 .piece {
   width: 100%;
   height: 100%;
