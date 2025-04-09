@@ -23,8 +23,45 @@ export function getAIMove(chess, level = "easy") {
   
   function getBestMove(chess) {
     const moves = chess.moves({ verbose: true });
-    // TEMP: same as easy, placeholder for real engine logic
-    return moves[Math.floor(Math.random() * moves.length)];
+    let bestMove = null;
+    let bestScore = -Infinity;
+
+    for (let move of moves) {
+      chess.move(move);
+      const score = -evaluateBoard(chess.board());
+      chess.undo();
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = move;
+      }
+    }
+
+    return bestMove || moves[Math.floor(Math.random() * moves.length)];
+  }
+
+  function evaluateBoard(board){
+    const pieceValues = {
+      p: 1,
+      n: 3,
+      b: 3,
+      r: 5,
+      q: 9,
+      k: 1000,
+    };
+
+    let score = 0;
+
+    for (let row of board){
+      for (let square of row) {
+        if(square) {
+          const value = pieceValues[square.type.toLowerCase()] || 0;
+          score += square.color === "w" ? value : -value;
+        }
+      }
+    }
+
+    return score; 
   }
   
   export function makeAIMoveIfBlackStarts(chess, playerColor, difficulty, setBoard, checkGameStatus) {
