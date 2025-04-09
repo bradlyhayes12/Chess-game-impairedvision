@@ -176,10 +176,12 @@ const ChessBoard = () => {
       let newFile = file;
       let newRank = rank;
 
-      if (e.key === "ArrowUp") newRank++;
-      if (e.key === "ArrowDown") newRank--;
-      if (e.key === "ArrowLeft") newFile--;
-      if (e.key === "ArrowRight") newFile++;
+      const isWhite = playerColor === "white";
+
+      if (e.key === "ArrowUp") newRank += isWhite ? 1 : -1;
+      if (e.key === "ArrowDown") newRank += isWhite ? -1 : 1;
+      if (e.key === "ArrowLeft") newFile += isWhite ? -1 : 1;
+      if (e.key === "ArrowRight") newFile += isWhite ? 1 : -1;
 
       if (newFile >= 97 && newFile <= 104 && newRank >= 1 && newRank <= 8) {
         const newSquare = `${String.fromCharCode(newFile)}${newRank}`;
