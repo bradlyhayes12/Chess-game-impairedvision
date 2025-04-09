@@ -1,20 +1,18 @@
 import React from "react";
+import './App.css'
 
 const Layout = ({ children }) => {
   return (
     <div className="page">
-      <header>VISION CHESS</header>
-
-      <nav>
-        <button>Settings</button>
-        <button>About Us</button>
+      <header className="header">VISION CHESS</header>
+      <nav className="navbar">
+        <button className="nav-button">Settings</button>
+        <button className="nav-button">About Us</button>
       </nav>
-
-      <main>
+      <main className="main-content">
         {children}
       </main>
-
-      <footer>Footer</footer>
+      <footer className="footer">Footer</footer>
     </div>
   );
 };

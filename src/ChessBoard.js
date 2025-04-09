@@ -1,3 +1,4 @@
+// src/ChessBoard.js
 import React, { useState, useEffect, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
@@ -8,7 +9,7 @@ const Speak = (text) => {
   const synth = window.speechSynthesis;
   if (synth.speaking) synth.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.9;
+  utterance.rate = 0.9; // Slower for clarity (optional)
   synth.speak(utterance);
 };
 
@@ -21,31 +22,15 @@ const pieceNames = {
   k: "King"
 };
 
-const speakMove = (move, chess, prefix = "") => {
+const speakMove = (move, prefix = "") => {
   if (!move) return;
-  let text = prefix;
   const pieceName = pieceNames[move.piece.toLowerCase()] || move.piece;
-
-  if (move.flags.includes("c")) {
-    text += `${pieceName} captures on ${move.to.toUpperCase()}`;
-  } else {
-    text += `${pieceName} to ${move.to.toUpperCase()}`;
-  }
-
-  if (move.flags.includes("p")) {
-    text += ` and promotes to Queen`;
-  }
-
-  Speak(text);
-
-  setTimeout(() => {
-    if (chess.isCheckmate()) {
-      Speak("Checkmate!");
-    } else if (chess.isCheck()) {
-      Speak("Check!");
-    }
-  }, 1000);
+  const moveText = `${prefix}${pieceName} to ${move.to.toUpperCase()}`;
+  const synth = window.speechSynthesis;
+  const utterance = new SpeechSynthesisUtterance(moveText);
+  synth.speak(utterance);
 };
+
 
 const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) => {
   const pieceColor = piece === piece.toUpperCase() ? "w" : "b";
@@ -147,7 +132,7 @@ const ChessBoard = () => {
 
       const move = chess.move(moveOptions);
       if (move) {
-        speakMove(move, chess);
+        speakMove(move);
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
@@ -161,7 +146,7 @@ const ChessBoard = () => {
             if (aiMove) {
               const aiMoveResult = chess.move(aiMove);
               if (aiMoveResult) {
-                speakMove(aiMoveResult, chess, "Computer played ");
+                speakMove(aiMoveResult, "Computer played ");
                 setTimeout(() => {
                   setBoard(chess.board());
                   setMoveHistory(prev => [...prev, aiMoveResult.san]);
@@ -170,7 +155,7 @@ const ChessBoard = () => {
                 }, 800);
               }
             }
-          }, 1400);
+          }, 500);
         }
       }
     } else {
@@ -216,7 +201,7 @@ const ChessBoard = () => {
       if (aiMove) {
         const aiMoveResult = chess.move(aiMove);
         if (aiMoveResult) {
-          speakMove(aiMoveResult, chess, "Computer played ");
+          speakMove(aiMoveResult, "Computer played ");
           setTimeout(() => {
             setBoard(chess.board());
             setMoveHistory([aiMoveResult.san]);
@@ -226,20 +211,6 @@ const ChessBoard = () => {
         }
       }
     }, 300);
-  };
-
-  const restartGame = () => {
-    const newGame = new Chess();
-    setChess(newGame);
-    setBoard(newGame.board());
-    setSelected(null);
-    setValidMoves([]);
-    setGameStatus("");
-    setMoveHistory([]);
-    setCaptured([]);
-    setFocusedSquare("e2");
-    setPlayerColor(null);
-    setIsGameStarted(false);
   };
 
   if (!isGameStarted) {
@@ -259,17 +230,33 @@ const ChessBoard = () => {
       </div>
     );
   }
+  const restartGame = () => {
+    const newGame = new Chess();
+    setChess(newGame);
+    setBoard(newGame.board());
+    setSelected(null);
+    setValidMoves([]);
+    setGameStatus("");
+    setMoveHistory([]);
+    setCaptured([]);
+    setFocusedSquare("e2");
+    setPlayerColor(null);
+    setIsGameStarted(false);
+  };
+  
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
         <button onClick={restartGame}>Restart</button>
+        <div className="game-container">
         <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
           {board.flat().map((square, index) => {
             const row = Math.floor(index / 8);
             const col = index % 8;
             const position = `${String.fromCharCode(97 + col)}${8 - row}`;
+
             return (
               <Square
                 key={position}
@@ -293,6 +280,16 @@ const ChessBoard = () => {
             );
           })}
         </div>
+
+        <div className="move-history-panel">
+          <h3>Move History</h3>
+          <ol>
+            {moveHistory.map((move, i) => (
+              <li key={i}>{move}</li>
+            ))}
+          </ol>
+        </div>
+      </div>
       </div>
     </DndProvider>
   );
