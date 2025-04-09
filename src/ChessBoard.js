@@ -4,6 +4,7 @@ import { Chess } from "chess.js";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getAIMove } from "./aiDifficulty";
+import pieceImages from "./pieceImages";
 
 const Speak = (text) => {
   const synth = window.speechSynthesis;
@@ -49,11 +50,15 @@ const Piece = ({ piece, position, onClick, setValidMoves, chess, playerColor }) 
   return (
     <div
       ref={drag}
-      className={`piece ${pieceClass}`}
+      className="piece"
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => isCorrectPlayer && onClick(position)}
+      onClick={() => pieceColor === (playerColor === "white" ? "w" : "b") && onClick(position)}
     >
-      {piece}
+      <img
+        src={pieceImages[pieceColor + piece.toLowerCase()]}
+        alt={`${pieceColor === "w" ? "White" : "Black"} ${piece.toUpperCase()}`} 
+        style={{ width: "80%", height: "80%"}}
+      />
     </div>
   );
 };
