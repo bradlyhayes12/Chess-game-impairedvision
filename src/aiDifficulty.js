@@ -16,23 +16,23 @@ export function getAIMove(chess, level = "easy") {
   if (moveNumber < 4) {
     const bookMoves = getOpeningMove(chess);
     if (bookMoves.length > 0) {
-      return bookMoves[Math.floor(Math.random() * bookMoves.length)];
+      return bookMoves[Math.floor(Math.random() * bookMoves.length)].san;
     }
   }
 
   switch (level) {
     case "easy":
-      return moves[Math.floor(Math.random() * moves.length)];
+      return moves[Math.floor(Math.random() * moves.length)].san;
 
     case "medium":
       const topMoves = moves.slice(0, 5);
-      return topMoves[Math.floor(Math.random() * topMoves.length)];
+      return topMoves[Math.floor(Math.random() * topMoves.length)].san;
 
     case "hard":
-      return getBestMove(chess, 4);
+      return getBestMove(chess, 4); // Now uses alpha-beta pruning
 
     default:
-      return moves[0];
+      return moves[0].san;
   }
 }
 
@@ -41,9 +41,7 @@ function getOpeningMove(chess) {
   const availableMoves = chess.moves({ verbose: true });
   const book = isWhite ? openingBook.white : openingBook.black;
 
-  // Find moves matching book
-  const matchingMoves = availableMoves.filter(move => book.includes(move.san));
-  return matchingMoves;
+  return availableMoves.filter(move => book.includes(move.san));
 }
 
 function getBestMove(chess, depth = 3) {
@@ -53,7 +51,7 @@ function getBestMove(chess, depth = 3) {
 
   for (const move of moves) {
     chess.move(move);
-    const score = minimax(chess, depth - 1, false);
+    const score = minimax(chess, depth - 1, -Infinity, Infinity, false);
     chess.undo();
 
     if (score > bestScore) {
@@ -62,10 +60,10 @@ function getBestMove(chess, depth = 3) {
     }
   }
 
-  return bestMove || moves[Math.floor(Math.random() * moves.length)];
+  return bestMove ? bestMove.san : moves[Math.floor(Math.random() * moves.length)].san;
 }
 
-function minimax(chess, depth, isMaximizing) {
+function minimax(chess, depth, alpha, beta, isMaximizing) {
   if (depth === 0 || chess.isGameOver()) {
     return evaluateBoard(chess);
   }
@@ -76,18 +74,22 @@ function minimax(chess, depth, isMaximizing) {
     let maxEval = -Infinity;
     for (const move of moves) {
       chess.move(move);
-      const evalScore = minimax(chess, depth - 1, false);
+      const evalScore = minimax(chess, depth - 1, alpha, beta, false);
       chess.undo();
       maxEval = Math.max(maxEval, evalScore);
+      alpha = Math.max(alpha, evalScore);
+      if (beta <= alpha) break;
     }
     return maxEval;
   } else {
     let minEval = Infinity;
     for (const move of moves) {
       chess.move(move);
-      const evalScore = minimax(chess, depth - 1, true);
+      const evalScore = minimax(chess, depth - 1, alpha, beta, true);
       chess.undo();
       minEval = Math.min(minEval, evalScore);
+      beta = Math.min(beta, evalScore);
+      if (beta <= alpha) break;
     }
     return minEval;
   }
@@ -122,11 +124,11 @@ function evaluateBoard(chess) {
   }
 
   if (chess.inCheck()) {
-    score += chess.turn() === "w" ? -2 : 2; // Stronger check bonus
+    score += chess.turn() === "w" ? -2 : 2;
   }
 
   if (isRepetitionLikely(chess)) {
-    score += chess.turn() === "w" ? -1.5 : 1.5; // Penalize repetition
+    score += chess.turn() === "w" ? -1.5 : 1.5;
   }
 
   const fen = chess.fen();
@@ -135,7 +137,7 @@ function evaluateBoard(chess) {
   if (fen.includes("k")) score -= 0.5;
   if (fen.includes("q")) score -= 0.3;
 
-  score += (Math.random() - 0.5) * 0.05; // Tiny noise
+  score += (Math.random() - 0.5) * 0.05;
 
   return score;
 }
@@ -143,30 +145,26 @@ function evaluateBoard(chess) {
 function isRepetitionLikely(chess) {
   const history = chess.history({ verbose: true });
   if (history.length < 4) return false;
-  
+
   const lastMove = history[history.length - 1];
   const prevMove = history[history.length - 3];
-  
-  // If a piece moves to a square then back to original, suspicious
+
   return lastMove && prevMove && lastMove.to === prevMove.from;
 }
+
 function getDevelopmentBonus(piece, row, col) {
   const centerSquares = ["d4", "d5", "e4", "e5"];
   const square = `${String.fromCharCode(97 + col)}${8 - row}`;
   const centerControl = centerSquares.includes(square) ? 0.3 : 0;
 
-  if (piece.type === "p") {
-    return centerControl;
-  }
+  if (piece.type === "p") return centerControl;
 
   if (piece.type === "n" || piece.type === "b") {
     const isDeveloped = (piece.color === "w" && row <= 5) || (piece.color === "b" && row >= 2);
     return (isDeveloped ? 0.7 : 0) + centerControl;
   }
 
-  if (piece.type === "q") {
-    return -0.3;
-  }
+  if (piece.type === "q") return -0.3;
 
   return 0;
 }
