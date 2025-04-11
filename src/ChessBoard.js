@@ -23,6 +23,17 @@ const pieceNames = {
   k: "King"
 };
 
+const announceCapture = (move) => {
+  if (!move?.captured) return;
+
+  const pieceName = pieceNames[move.piece?.toLowerCase()] || "Piece";
+  const capturedName = pieceNames[move.captured?.toLowerCase()] || "piece";
+  const color = move.color === "w" ? "White" : "Black";
+
+  Speak(`${color} ${pieceName} captures ${capturedName} at ${move.to}`);
+};
+
+
 const speakMove = (move, prefix = "") => {
   if (!move) return;
   const pieceName = pieceNames[move.piece.toLowerCase()] || move.piece;
@@ -98,17 +109,25 @@ const ChessBoard = () => {
   const [captured, setCaptured] = useState([]);
   const [focusedSquare, setFocusedSquare] = useState("e2");
 
-  const checkGameStatus = useCallback(() => {
+  const checkGameStatus = () => {
     if (chess.isCheckmate()) {
-      setGameStatus(`Checkmate! ${chess.turn() === "w" ? "Black" : "White"} wins!`);
+      const winner = chess.turn() === "w" ? "Black" : "White";
+      const message = `Checkmate! ${winner} wins!`;
+      setGameStatus(message);
+      Speak(message);
     } else if (chess.isCheck()) {
-      setGameStatus(`Check! ${chess.turn() === "w" ? "White" : "Black"} is in check.`);
+      const playerInCheck = chess.turn() === "w" ? "White" : "Black";
+      const message = `Check! ${playerInCheck} is in check.`;
+      setGameStatus(message);
+      Speak(message);
     } else if (chess.isDraw()) {
-      setGameStatus("Game Drawn!");
+      const message = "Game drawn!";
+      setGameStatus(message);
+      Speak(message);
     } else {
       setGameStatus("");
     }
-  }, [chess]);
+  };  
 
   const handlePieceClick = useCallback((position) => {
     if (selected === position) {
@@ -142,26 +161,36 @@ const ChessBoard = () => {
         setSelected(null);
         setValidMoves([]);
         setMoveHistory(prev => [...prev, move.san]);
-        if (move.captured) setCaptured(prev => [...prev, move.captured]);
-        checkGameStatus();
+        Speak("Valid move");
+        announceCapture(move);       
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
           setTimeout(() => {
             const aiMove = getAIMove(chess, difficulty);
             if (aiMove) {
               const aiMoveResult = chess.move(aiMove);
+        
               if (aiMoveResult) {
-                speakMove(aiMoveResult, "Computer played ");
-                setTimeout(() => {
-                  setBoard(chess.board());
-                  setMoveHistory(prev => [...prev, aiMoveResult.san]);
-                  if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
-                  checkGameStatus();
-                }, 800);
+                const pieceName = pieceNames[aiMoveResult.piece] || "Piece";
+                const color = aiMoveResult.color === "w" ? "White" : "Black";
+                const toSquare = aiMoveResult.to;
+        
+                // 🎙️ Speak the move
+                Speak(`${color} ${pieceName} to ${toSquare}`);
+        
+                // 🎙️ Speak the capture if any
+                announceCapture(aiMoveResult);
+        
+                // 🧠 Update state
+                setBoard(chess.board());
+                setMoveHistory(prev => [...prev, aiMoveResult.san]);
+                if (aiMoveResult.captured) setCaptured(prev => [...prev, aiMoveResult.captured]);
+                checkGameStatus();
               }
             }
           }, 500);
         }
+        
       }
     } else {
       setSelected(null);
