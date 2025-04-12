@@ -6,6 +6,28 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { getAIMove } from "./aiDifficulty";
 import pieceImages from "./pieceImages";
 
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const startListening = (callback) => {
+  if (!SpeechRecognition) {
+    alert("Speech Recognition not supported in this browser.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript.toLowerCase();
+    console.log("Heard:", transcript);
+    callback(transcript);
+  };
+
+  recognition.start();
+};
+
 const Speak = (text) => {
   const synth = window.speechSynthesis;
   if (synth.speaking) synth.cancel();
@@ -52,6 +74,39 @@ const speakMove = (move, prefix = "") => {
   const synth = window.speechSynthesis;
   const utterance = new SpeechSynthesisUtterance(moveText);
   synth.speak(utterance);
+};
+
+const handleVoiceCommand = (speech) => {
+  // Basic pattern matching
+  const squareMatch = speech.match(/[a-h][1-8]/i);
+  const pieceMatch = speech.match(/pawn|knight|bishop|rook|queen|king/i);
+
+  if (!squareMatch) {
+    Speak("Could not understand the square");
+    return;
+  }
+
+  const to = squareMatch[0].toLowerCase();
+  const pieceType = pieceMatch ? pieceMatch[0].toLowerCase()[0] : null; // p, n, b...
+
+  const allMoves = chess.moves({ verbose: true });
+
+  let chosenMove;
+
+  if (pieceType) {
+    chosenMove = allMoves.find(
+      (m) => m.to === to && m.piece === pieceType && m.color === (playerColor === "white" ? "w" : "b")
+    );
+  } else {
+    // fallback: just use the first move that goes to that square
+    chosenMove = allMoves.find((m) => m.to === to && m.color === (playerColor === "white" ? "w" : "b"));
+  }
+
+  if (chosenMove) {
+    handleMove(chosenMove.from, chosenMove.to);
+  } else {
+    Speak("Could not find a valid move to that square");
+  }
 };
 
 
@@ -331,6 +386,12 @@ const ChessBoard = () => {
         <h2>{gameStatus}</h2>
         <SpeakOnHover text="Restart the game">
           <button onClick={restartGame}>Restart</button>
+        </SpeakOnHover>
+
+        <SpeakOnHover text="Click to use voice command">
+          <button onClick={() => startListening(handleVoiceCommand)}>
+            Voice Move
+          </button>
         </SpeakOnHover>
 
         <div className="game-container">
