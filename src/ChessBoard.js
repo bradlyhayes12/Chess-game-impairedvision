@@ -325,7 +325,10 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
-        <button onClick={restartGame}>Restart</button>
+        <SpeakOnHover text="Restart the game">
+          <button onClick={restartGame}>Restart</button>
+        </SpeakOnHover>
+
         <div className="game-container">
         <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
           {board.flat().map((square, index) => {
@@ -361,7 +364,9 @@ const ChessBoard = () => {
           <h3>Move History</h3>
           <ol>
             {moveHistory.map((move, i) => (
-              <li key={i}>{move}</li>
+              <SpeakOnHover key={i} text={`Move ${i + 1}: ${move}`}>
+                <li>{move}</li>
+              </SpeakOnHover>
             ))}
           </ol>
         </div>
