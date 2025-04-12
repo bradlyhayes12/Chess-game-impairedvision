@@ -14,6 +14,17 @@ const Speak = (text) => {
   synth.speak(utterance);
 };
 
+const SpeakOnHover = ({ children, text }) => {
+  const handleHover = () => {
+    Speak(text);
+  };
+
+  // Clone the child and add the onMouseEnter handler
+  return React.cloneElement(children, {
+    onMouseEnter: handleHover,
+  });
+};
+
 const pieceNames = {
   p: "Pawn",
   n: "Knight",
@@ -259,17 +270,39 @@ const ChessBoard = () => {
   if (!isGameStarted) {
     return (
       <div className="setup-menu">
-        <h2>Choose Your Side</h2>
+        <SpeakOnHover text="Choose your side">
+          <h2>Choose Your Side</h2>
+        </SpeakOnHover>
+
         <div>
-          <label>Difficulty: </label>
-          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+          <SpeakOnHover text="Select difficulty level">
+            <label>Difficulty: </label>
+          </SpeakOnHover>
+          <select
+            value={difficulty}
+            onChange={(e) => {
+              setDifficulty(e.target.value);
+              Speak(`Difficulty set to ${e.target.value}`);
+            }}
+            onMouseEnter={() => Speak(`Current difficulty: ${difficulty}`)}
+          >
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
           </select>
         </div>
-        <button onClick={() => { setPlayerColor("white"); setIsGameStarted(true); }}>Play as White</button>
-        <button onClick={startGameAsBlack}>Play as Black</button>
+        <SpeakOnHover text="Play as White">
+          <button onClick={() => { setPlayerColor("white"); setIsGameStarted(true); }}>
+            Play as White
+          </button>
+        </SpeakOnHover>
+
+        <SpeakOnHover text="Play as Black">
+          <button onClick={startGameAsBlack}>
+            Play as Black
+          </button>
+        </SpeakOnHover>
+
       </div>
     );
   }
