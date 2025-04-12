@@ -167,12 +167,16 @@ const ChessBoard = () => {
 
       const move = chess.move(moveOptions);
       if (move) {
+        const pieceName = pieceNames[move.piece] || "Piece";
+        const color = move.color === "w" ? "White" : "Black";
+        const toSquare = move.to;
+        
         speakMove(move);
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
         setMoveHistory(prev => [...prev, move.san]);
-        Speak("Valid move");
+        Speak(`${color} ${pieceName} to ${toSquare}`);
         announceCapture(move);       
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
@@ -199,7 +203,7 @@ const ChessBoard = () => {
                 checkGameStatus();
               }
             }
-          }, 500);
+          }, 1200);
         }
         
       }
