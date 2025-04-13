@@ -87,12 +87,11 @@ App {
 }
 
 #chessboard {
-  width: 480px;
-  height: 480px;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  margin-right: 40px; /* Space between board and move history */
+  gap: 0;
+  margin: auto;
 }
 
 #chessboard.flipped {
@@ -100,6 +99,27 @@ App {
 }
 
 #chessboard.flipped .square {
+  transform: rotate(180deg);
+}
+
+/* Sizes */
+.small {
+  width: 300px;
+  height: 300px;
+}
+
+.medium {
+  width: 500px;
+  height: 500px;
+}
+
+.large {
+  width: 700px;
+  height: 700px;
+}
+
+/* Flipped for black */
+.flipped {
   transform: rotate(180deg);
 }
 
@@ -171,11 +191,11 @@ App {
 }
 
 .piece img {
-  width: 80%; /* You can tweak 80% → 70% or 90% if you want bigger or smaller pieces */
-  height: auto;
-  object-fit: contain; /* Prevent weird stretching */
-  pointer-events: none; /* Allow dragging without weird double events */
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
 }
+
 
 .white {
   background-color: #f0d9b5;
