@@ -38,6 +38,7 @@ function App() {
             <Route
               path="/about"
               element={<AboutUs />}
+              textToSpeech={textToSpeech}
               />
           </Routes>
         </Layout>

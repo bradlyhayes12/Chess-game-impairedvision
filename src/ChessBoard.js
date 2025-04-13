@@ -300,39 +300,50 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
   if (!isGameStarted) {
     return (
       <div className="setup-menu">
-        <SpeakOnHover text="Choose your side" textToSpeech={textToSpeech}>
-          <h2>Choose Your Side</h2>
-        </SpeakOnHover>
-
-        <div>
-          <SpeakOnHover text="Select difficulty level" textToSpeech={textToSpeech}>
-            <label>Difficulty: </label>
+        <div className="setup-card">
+          <SpeakOnHover text="Choose your side" textToSpeech={textToSpeech}>
+            <h2 className="setup-title">♟️ Choose Your Side ♟️</h2>
           </SpeakOnHover>
-          <select
-            value={difficulty}
-            onChange={(e) => {
-              setDifficulty(e.target.value);
-              Speak(`Difficulty set to ${e.target.value}`, textToSpeech);
-            }}
-            onMouseEnter={() => Speak(`Current difficulty: ${difficulty}`, textToSpeech)}
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
+    
+          <div className="setting-group">
+            <SpeakOnHover text="Select difficulty level" textToSpeech={textToSpeech}>
+              <label className="setting-label">Difficulty:</label>
+            </SpeakOnHover>
+            <select
+              className="setup-select"
+              value={difficulty}
+              onChange={(e) => {
+                setDifficulty(e.target.value);
+                Speak(`Difficulty set to ${e.target.value}`, textToSpeech);
+              }}
+              onMouseEnter={() => Speak(`Current difficulty: ${difficulty}`, textToSpeech)}
+            >
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+    
+          <div className="button-group">
+            <SpeakOnHover text="Play as White" textToSpeech={textToSpeech}>
+              <button 
+                className="setup-button" 
+                onClick={() => { setPlayerColor("white"); setIsGameStarted(true); }}
+              >
+                ♔ Play as White
+              </button>
+            </SpeakOnHover>
+    
+            <SpeakOnHover text="Play as Black" textToSpeech={textToSpeech}>
+              <button 
+                className="setup-button" 
+                onClick={startGameAsBlack}
+              >
+                ♚ Play as Black
+              </button>
+            </SpeakOnHover>
+          </div>
         </div>
-        <SpeakOnHover text="Play as White" textToSpeech={textToSpeech}>
-          <button onClick={() => { setPlayerColor("white"); setIsGameStarted(true); }}>
-            Play as White
-          </button>
-        </SpeakOnHover>
-
-        <SpeakOnHover text="Play as Black" textToSpeech={textToSpeech}>
-          <button onClick={startGameAsBlack}>
-            Play as Black
-          </button>
-        </SpeakOnHover>
-
       </div>
     );
   }

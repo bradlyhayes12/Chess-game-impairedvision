@@ -234,3 +234,81 @@ App {
   font-size: 18px;
   line-height: 1.5;
 }
+
+.setup-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.setup-card {
+  background-color: #1eb8f1; /* bright blue */
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  transition: transform 0.3s ease;
+}
+
+.setup-card:hover {
+  transform: scale(1.02);
+}
+
+.setup-title {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: black;
+}
+
+.setting-group {
+  margin-bottom: 30px;
+}
+
+.setting-label {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.setup-select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 2px solid #1eb8f1;
+  background-color: #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.setup-select:focus {
+  border-color: #1a91c2;
+  outline: none;
+  background-color: #e6f7ff;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.setup-button {
+  padding: 12px 20px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.setup-button:hover {
+  background-color: #1386ac;
+  transform: translateY(-3px);
+}
