@@ -449,7 +449,7 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
           })}
         </div>
 
-        <div className="move-history-panel">
+        <div className={`move-history-panel ${boardSize}`}>
           <h3>Move History</h3>
           <ol>
             {moveHistory.map((move, i) => (
