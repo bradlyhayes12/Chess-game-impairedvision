@@ -35,7 +35,7 @@ App {
   text-align: center;
   font-size: 32px;
   font-weight: bold;
-  padding: 20px;
+  padding: 15px;
 }
 
 .navbar {
@@ -236,26 +236,31 @@ App {
 }
 
 .setup-menu {
+  width: 100vw;
+  height: calc(100vh - headerHeight - navbarHeight - footerHeight);
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  padding: 20px;
+  padding: 40px;
+  background-attachment: fixed;
+  overflow: hidden;
 }
 
 .setup-card {
   background-color: #1eb8f1; /* bright blue */
   border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  padding: 50px 40px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   text-align: center;
   max-width: 400px;
   width: 100%;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .setup-card:hover {
-  transform: scale(1.02);
+  transform: scale(1.03);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
 }
 
 .setup-title {
