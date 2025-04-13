@@ -1,5 +1,5 @@
 .settings-page {
-    background-color: var(--background);
+    background-color: #1eb8f1; /* bright blue */
     color: var(--text);
     padding: 2rem;
     max-width: 500px;
