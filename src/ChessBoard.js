@@ -57,14 +57,14 @@ const pieceNames = {
   k: "King"
 };
 
-const announceCapture = (move) => {
+const announceCapture = (move, textToSpeech = true) => {
   if (!move?.captured) return;
 
   const pieceName = pieceNames[move.piece?.toLowerCase()] || "Piece";
   const capturedName = pieceNames[move.captured?.toLowerCase()] || "piece";
   const color = move.color === "w" ? "White" : "Black";
 
-  Speak(`${color} ${pieceName} captures ${capturedName} at ${move.to}`);
+  Speak(`${color} ${pieceName} captures ${capturedName} at ${move.to}`, textToSpeech);
 };
 
 
@@ -201,7 +201,7 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
         setValidMoves([]);
         setMoveHistory(prev => [...prev, move.san]);
         Speak(`${color} ${pieceName} to ${toSquare}`, textToSpeech);
-        announceCapture(move);       
+        announceCapture(move, textToSpeech);       
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
           setTimeout(() => {
@@ -218,7 +218,7 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
                 Speak(`${color} ${pieceName} to ${toSquare}`, textToSpeech);
         
                 // 🎙️ Speak the capture if any
-                announceCapture(aiMoveResult);
+                announceCapture(aiMoveResult, textToSpeech);
         
                 // 🧠 Update state
                 setBoard(chess.board());
