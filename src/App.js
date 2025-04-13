@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Layout from './Layout';
 import ChessBoard from './ChessBoard';
 import SettingsPage from './SettingsPage';
+import AboutUs from './AboutUs';
 import './App.css';
 
 function App() {
@@ -34,6 +35,10 @@ function App() {
                 />
               } 
             />
+            <Route
+              path="/about"
+              element={<AboutUs />}
+              />
           </Routes>
         </Layout>
       </Router>

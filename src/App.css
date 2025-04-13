@@ -212,3 +212,16 @@ App {
 .selected {
   outline: 2px solid yellow;
 }
+
+.about-page {
+  text-align: center;
+  padding: 30px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.about-page p {
+  margin: 20px 0;
+  font-size: 18px;
+  line-height: 1.5;
+}

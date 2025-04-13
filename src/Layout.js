@@ -34,7 +34,7 @@ const Layout = ({ children , textToSpeech}) => {
         <button className="nav-button">Settings</button>
         </Link>
         </SpeakOnHover>
-        <Link to="/">
+        <Link to="/about">
         <SpeakOnHover text="About Us" textToSpeech={textToSpeech}>
         <button className="nav-button">About Us</button>
         </SpeakOnHover>
