@@ -39,7 +39,9 @@ const Speak = (text, textToSpeech = true) => {
 
 const SpeakOnHover = ({ children, text, textToSpeech = true}) => {
   const handleHover = () => {
-    Speak(text, textToSpeech);
+    if (textToSpeech) {
+      Speak(text, true);
+    }
   };
 
   // Clone the child and add the onMouseEnter handler
@@ -227,7 +229,7 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
                 checkGameStatus();
               }
             }
-          }, 1200);
+          }, 2000);
         }
         
       }

@@ -13,7 +13,7 @@ function App() {
   return (
     <div className={darkMode ? 'App dark' : 'App'}>
       <Router>
-        <Layout>
+        <Layout textToSpeech={textToSpeech}>
           <Routes>
             <Route 
               path="/" 
