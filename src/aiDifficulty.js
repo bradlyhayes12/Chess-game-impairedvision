@@ -1,6 +1,5 @@
 import { Chess } from "chess.js";
 
-// Basic opening moves database
 const openingBook = {
   white: ["e4", "d4", "c4", "Nf3"],
   black: ["e5", "c5", "e6", "d5"],
@@ -16,7 +15,10 @@ export function getAIMove(chess, level = "easy") {
   if (moveNumber < 4) {
     const bookMoves = getOpeningMove(chess);
     if (bookMoves.length > 0) {
-      return bookMoves[Math.floor(Math.random() * bookMoves.length)].san;
+      const randomBookMove = bookMoves[Math.floor(Math.random() * bookMoves.length)];
+      if (randomBookMove) {
+        return randomBookMove.san;
+      }
     }
   }
 
@@ -25,14 +27,16 @@ export function getAIMove(chess, level = "easy") {
       return moves[Math.floor(Math.random() * moves.length)].san;
 
     case "medium":
-      const topMoves = moves.slice(0, 5);
+      // Pick a random move, but prefer central moves
+      const sortedMoves = moves.sort((a, b) => evaluateMove(b) - evaluateMove(a));
+      const topMoves = sortedMoves.slice(0, Math.min(5, sortedMoves.length));
       return topMoves[Math.floor(Math.random() * topMoves.length)].san;
 
     case "hard":
-      return getBestMove(chess, 4); // Now uses alpha-beta pruning
+      return getBestMove(chess, 3);
 
     default:
-      return moves[0].san;
+      return moves[Math.floor(Math.random() * moves.length)].san;
   }
 }
 
@@ -50,7 +54,7 @@ function getBestMove(chess, depth = 3) {
   let bestScore = -Infinity;
 
   for (const move of moves) {
-    chess.move(move);
+    chess.move({from: move.from, to: move.to, promotion: move.promotion });
     const score = minimax(chess, depth - 1, -Infinity, Infinity, false);
     chess.undo();
 
@@ -84,7 +88,7 @@ function minimax(chess, depth, alpha, beta, isMaximizing) {
   } else {
     let minEval = Infinity;
     for (const move of moves) {
-      chess.move(move);
+      chess.move({from: move.from, to: move.to, promotion: move.promotion });
       const evalScore = minimax(chess, depth - 1, alpha, beta, true);
       chess.undo();
       minEval = Math.min(minEval, evalScore);
@@ -131,14 +135,6 @@ function evaluateBoard(chess) {
     score += chess.turn() === "w" ? -1.5 : 1.5;
   }
 
-  const fen = chess.fen();
-  if (fen.includes("K")) score += 0.5;
-  if (fen.includes("Q")) score += 0.3;
-  if (fen.includes("k")) score -= 0.5;
-  if (fen.includes("q")) score -= 0.3;
-
-  score += (Math.random() - 0.5) * 0.05;
-
   return score;
 }
 
@@ -167,6 +163,12 @@ function getDevelopmentBonus(piece, row, col) {
   if (piece.type === "q") return -0.3;
 
   return 0;
+}
+
+function evaluateMove(move) {
+  // Bonus for moving to center squares
+  const centerSquares = ["d4", "d5", "e4", "e5"];
+  return centerSquares.includes(move.to) ? 1 : 0;
 }
 
 export function makeAIMoveIfBlackStarts(chess, playerColor, difficulty, setBoard, checkGameStatus) {

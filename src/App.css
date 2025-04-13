@@ -1,3 +1,28 @@
+App {
+  background-color: #f5f5f5;
+  color: #222;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+.App.dark {
+  background-color: #121212;
+  color: #eee;
+}
+
+/* Optional: make header/nav/footer dark too */
+.header, .navbar, .footer {
+  background-color: #eee;
+  color: #222;
+  transition: all 0.3s ease;
+}
+
+.App.dark .header, 
+.App.dark .navbar, 
+.App.dark .footer {
+  background-color: #1f1f1f;
+  color: #eee;
+}
 /* Layout styles */
 .page {
   display: flex;

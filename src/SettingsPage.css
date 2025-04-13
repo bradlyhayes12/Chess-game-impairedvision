@@ -1,0 +1,80 @@
+.settings-page {
+    background-color: var(--background);
+    color: var(--text);
+    padding: 2rem;
+    max-width: 500px;
+    margin: 2rem auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .settings-page h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+  }
+  
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .setting-item label {
+    font-size: 1.2rem;
+  }
+  
+  .setting-item button, 
+  .setting-item select {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #888;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    cursor: pointer;
+  }
+  
+  .setting-item button:hover,
+  .setting-item select:hover {
+    background-color: var(--button-hover);
+  }
+  
+  /* Light Theme Variables */
+  :root {
+    --background: #f9f9f9;
+    --text: #333;
+    --button-bg: #eee;
+    --button-text: #333;
+    --button-hover: #ddd;
+  }
+  
+  /* Dark Theme Support (optional) */
+  .dark .settings-page {
+    --background: #222;
+    --text: #eee;
+    --button-bg: #444;
+    --button-text: #eee;
+    --button-hover: #555;
+  }
+
+  .back-button {
+    margin-bottom: 1rem;
+  }
+  
+  .back-button button {
+    padding: 0.4rem 0.8rem;
+    font-size: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .back-button button:hover {
+    background-color: #45a049;
+  }
+  

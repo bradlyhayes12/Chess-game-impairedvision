@@ -28,7 +28,8 @@ const startListening = (callback) => {
   recognition.start();
 };
 
-const Speak = (text) => {
+const Speak = (text, textToSpeech = true) => {
+  if(!textToSpeech) return;
   const synth = window.speechSynthesis;
   if (synth.speaking) synth.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
@@ -36,9 +37,9 @@ const Speak = (text) => {
   synth.speak(utterance);
 };
 
-const SpeakOnHover = ({ children, text }) => {
+const SpeakOnHover = ({ children, text, textToSpeech = true}) => {
   const handleHover = () => {
-    Speak(text);
+    Speak(text, textToSpeech);
   };
 
   // Clone the child and add the onMouseEnter handler
@@ -67,8 +68,8 @@ const announceCapture = (move) => {
 };
 
 
-const speakMove = (move, prefix = "") => {
-  if (!move) return;
+const speakMove = (move, prefix = "", textToSpeech = true) => {
+  if (!move || !textToSpeech) return;
   const pieceName = pieceNames[move.piece.toLowerCase()] || move.piece;
   const moveText = `${prefix}${pieceName} to ${move.to.toUpperCase()}`;
   const synth = window.speechSynthesis;
@@ -128,7 +129,7 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected, isFoc
   );
 };
 
-const ChessBoard = () => {
+const ChessBoard = ({ textToSpeech, boardSize }) => {
   const [chess, setChess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
   const [selected, setSelected] = useState(null);
@@ -148,16 +149,16 @@ const ChessBoard = () => {
       const winner = chess.turn() === "w" ? "Black" : "White";
       const message = `Checkmate! ${winner} wins!`;
       setGameStatus(message);
-      Speak(message);
+      Speak(message, textToSpeech);
     } else if (chess.isCheck()) {
       const playerInCheck = chess.turn() === "w" ? "White" : "Black";
       const message = `Check! ${playerInCheck} is in check.`;
       setGameStatus(message);
-      Speak(message);
+      Speak(message, textToSpeech);
     } else if (chess.isDraw()) {
       const message = "Game drawn!";
       setGameStatus(message);
-      Speak(message);
+      Speak(message, textToSpeech);
     } else {
       setGameStatus("");
     }
@@ -194,12 +195,12 @@ const ChessBoard = () => {
         const color = move.color === "w" ? "White" : "Black";
         const toSquare = move.to;
         
-        speakMove(move);
+        speakMove(move, textToSpeech);
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
         setMoveHistory(prev => [...prev, move.san]);
-        Speak(`${color} ${pieceName} to ${toSquare}`);
+        Speak(`${color} ${pieceName} to ${toSquare}`, textToSpeech);
         announceCapture(move);       
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
@@ -214,7 +215,7 @@ const ChessBoard = () => {
                 const toSquare = aiMoveResult.to;
         
                 // 🎙️ Speak the move
-                Speak(`${color} ${pieceName} to ${toSquare}`);
+                Speak(`${color} ${pieceName} to ${toSquare}`, textToSpeech);
         
                 // 🎙️ Speak the capture if any
                 announceCapture(aiMoveResult);
@@ -258,9 +259,9 @@ const ChessBoard = () => {
         if (piece) {
           const colorName = piece.color === "w" ? "White" : "Black";
           const pieceName = pieceNames[piece.type?.toLowerCase()] || "Piece";
-          Speak(`${colorName} ${pieceName} on ${newSquare}`);
+          Speak(`${colorName} ${pieceName} on ${newSquare}`, textToSpeech);
         } else {
-          Speak(`Empty square ${newSquare}`);
+          Speak(`Empty square ${newSquare}`, textToSpeech);
         }
         
       }
@@ -282,7 +283,7 @@ const ChessBoard = () => {
       if (aiMove) {
         const aiMoveResult = chess.move(aiMove);
         if (aiMoveResult) {
-          speakMove(aiMoveResult, "Computer played ");
+          speakMove(aiMoveResult, "Computer played ", textToSpeech);
           setTimeout(() => {
             setBoard(chess.board());
             setMoveHistory([aiMoveResult.san]);
@@ -297,34 +298,34 @@ const ChessBoard = () => {
   if (!isGameStarted) {
     return (
       <div className="setup-menu">
-        <SpeakOnHover text="Choose your side">
+        <SpeakOnHover text="Choose your side" textToSpeech={textToSpeech}>
           <h2>Choose Your Side</h2>
         </SpeakOnHover>
 
         <div>
-          <SpeakOnHover text="Select difficulty level">
+          <SpeakOnHover text="Select difficulty level" textToSpeech={textToSpeech}>
             <label>Difficulty: </label>
           </SpeakOnHover>
           <select
             value={difficulty}
             onChange={(e) => {
               setDifficulty(e.target.value);
-              Speak(`Difficulty set to ${e.target.value}`);
+              Speak(`Difficulty set to ${e.target.value}`, textToSpeech);
             }}
-            onMouseEnter={() => Speak(`Current difficulty: ${difficulty}`)}
+            onMouseEnter={() => Speak(`Current difficulty: ${difficulty}`, textToSpeech)}
           >
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
           </select>
         </div>
-        <SpeakOnHover text="Play as White">
+        <SpeakOnHover text="Play as White" textToSpeech={textToSpeech}>
           <button onClick={() => { setPlayerColor("white"); setIsGameStarted(true); }}>
             Play as White
           </button>
         </SpeakOnHover>
 
-        <SpeakOnHover text="Play as Black">
+        <SpeakOnHover text="Play as Black" textToSpeech={textToSpeech}>
           <button onClick={startGameAsBlack}>
             Play as Black
           </button>
@@ -374,7 +375,7 @@ const ChessBoard = () => {
     const pieceMatch = speech.match(/pawn|knight|bishop|rook|queen|king/i);
   
     if (!squareMatch) {
-      Speak("Could not understand the square");
+      Speak("Could not understand the square", textToSpeech);
       return;
     }
   
@@ -396,7 +397,7 @@ const ChessBoard = () => {
     if (chosenMove) {
       handleMove(chosenMove.from, chosenMove.to);
     } else {
-      Speak("Could not find a valid move to that square");
+      Speak("Could not find a valid move to that square", textToSpeech);
     }
   };
   
@@ -405,11 +406,11 @@ const ChessBoard = () => {
     <DndProvider backend={HTML5Backend}>
       <div>
         <h2>{gameStatus}</h2>
-        <SpeakOnHover text="Restart the game">
+        <SpeakOnHover text="Restart the game" textToSpeech={textToSpeech}>
           <button onClick={restartGame}>Restart</button>
         </SpeakOnHover>
 
-        <SpeakOnHover text="Click to use voice command">
+        <SpeakOnHover text="Click to use voice command" textToSpeech={textToSpeech}>
           <button onClick={() => startListening(handleVoiceCommand)}>
             Voice Move
           </button>
@@ -450,7 +451,7 @@ const ChessBoard = () => {
           <h3>Move History</h3>
           <ol>
             {moveHistory.map((move, i) => (
-              <SpeakOnHover key={i} text={`Move ${i + 1}: ${move}`}>
+              <SpeakOnHover key={i} text={`Move ${i + 1}: ${move}`} textToSpeech={textToSpeech}>
                 <li>{move}</li>
               </SpeakOnHover>
             ))}

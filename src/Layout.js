@@ -1,5 +1,6 @@
 import React from "react";
 import './App.css'
+import { Link } from 'react-router-dom';
 
 const Speak = (text) => {
   const synth = window.speechSynthesis;
@@ -28,11 +29,15 @@ const Layout = ({ children }) => {
       </SpeakOnHover>
       <nav className="navbar">
         <SpeakOnHover text="Settings">
+          <Link to="/settings">
         <button className="nav-button">Settings</button>
+        </Link>
         </SpeakOnHover>
+        <Link to="/">
         <SpeakOnHover text="About Us">
         <button className="nav-button">About Us</button>
         </SpeakOnHover>
+        </Link>
       </nav>
       <main className="main-content">
         {children}
