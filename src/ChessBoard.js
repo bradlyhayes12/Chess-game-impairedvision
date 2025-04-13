@@ -417,49 +417,55 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div>
-        <h2>{gameStatus}</h2>
+    <div className="game-page">
+  
+      {/* Toolbar at the top */}
+      <div className="game-toolbar">
         <SpeakOnHover text="Restart the game" textToSpeech={textToSpeech}>
-          <button onClick={restartGame}>Restart</button>
+          <button className="game-button" onClick={restartGame}>🔄 Restart</button>
         </SpeakOnHover>
-
+  
         <SpeakOnHover text="Click to use voice command" textToSpeech={textToSpeech}>
-          <button onClick={() => startListening(handleVoiceCommand)}>
-            Voice Move
+          <button className="game-button" onClick={() => startListening(handleVoiceCommand)}>
+            🎙️ Voice Move
           </button>
         </SpeakOnHover>
-
-        <div className="game-container">
-        <div id="chessboard" className={`${boardSize} ${playerColor === "black" ? "flipped" : ""}`}>
-          {board.flat().map((square, index) => {
-            const row = Math.floor(index / 8);
-            const col = index % 8;
-            const position = `${String.fromCharCode(97 + col)}${8 - row}`;
-
-            return (
-              <Square
-                key={position}
-                position={position}
-                handleMove={handleMove}
-                isValidMove={validMoves.includes(position)}
-                isSelected={selected === position}
-                isFocused={focusedSquare === position}
-              >
-                {square ? (
-                  <Piece
-                    piece={square.color === "b" ? square.type.toLowerCase() : square.type.toUpperCase()}
-                    position={position}
-                    onClick={handlePieceClick}
-                    setValidMoves={setValidMoves}
-                    chess={chess}
-                    playerColor={playerColor}
-                  />
-                ) : null}
-              </Square>
-            );
-          })}
+      </div>
+  
+      {/* Chessboard and move history side-by-side */}
+      <div className="game-container">
+        <div className="chess-area">
+          <div id="chessboard" className={`${boardSize} ${playerColor === "black" ? "flipped" : ""}`}>
+            {board.flat().map((square, index) => {
+              const row = Math.floor(index / 8);
+              const col = index % 8;
+              const position = `${String.fromCharCode(97 + col)}${8 - row}`;
+  
+              return (
+                <Square
+                  key={position}
+                  position={position}
+                  handleMove={handleMove}
+                  isValidMove={validMoves.includes(position)}
+                  isSelected={selected === position}
+                  isFocused={focusedSquare === position}
+                >
+                  {square ? (
+                    <Piece
+                      piece={square.color === "b" ? square.type.toLowerCase() : square.type.toUpperCase()}
+                      position={position}
+                      onClick={handlePieceClick}
+                      setValidMoves={setValidMoves}
+                      chess={chess}
+                      playerColor={playerColor}
+                    />
+                  ) : null}
+                </Square>
+              );
+            })}
+          </div>
         </div>
-
+  
         <div className={`move-history-panel ${boardSize}`}>
           <h3>Move History</h3>
           <ol>
@@ -471,8 +477,9 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
           </ol>
         </div>
       </div>
-      </div>
-    </DndProvider>
+  
+    </div>
+  </DndProvider>
   );
 };
 

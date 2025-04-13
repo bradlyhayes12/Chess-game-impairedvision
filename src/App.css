@@ -56,7 +56,6 @@ App {
 }
 
 .main-content {
-  background-color: black;
   display: flex;
   flex-direction: row;
   flex: 1;
@@ -124,12 +123,60 @@ App {
   transform: rotate(180deg);
 }
 
+.game-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+}
+
+.game-toolbar {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+}
+
+.game-button {
+  background-color: #1eb8f1;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.game-button:hover {
+  background-color: #1386ac;
+  transform: translateY(-2px);
+}
+
+.game-container {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+}
+
+.chess-area {
+  background-color: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
 .move-history-panel {
+  background-color: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  max-height: 600px;
   overflow-y: auto;
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 8px;
-  margin-left: 20px;
   transition: all 0.3s ease;
 }
 
