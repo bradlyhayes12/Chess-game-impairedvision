@@ -197,12 +197,12 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
         const color = move.color === "w" ? "White" : "Black";
         const toSquare = move.to;
         
-        speakMove(move, textToSpeech);
+        speakMove(move, "", textToSpeech);
         setBoard(chess.board());
         setSelected(null);
         setValidMoves([]);
         setMoveHistory(prev => [...prev, move.san]);
-        Speak(`${color} ${pieceName} to ${toSquare}`, textToSpeech);
+        // Speak(`${color} ${pieceName} to ${toSquare}`, textToSpeech);
         announceCapture(move, textToSpeech);       
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
@@ -419,7 +419,7 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
         </SpeakOnHover>
 
         <div className="game-container">
-        <div id="chessboard" className={playerColor === "black" ? "flipped" : ""}>
+        <div id="chessboard" className={`${boardSize} ${playerColor === "black" ? "flipped" : ""}`}>
           {board.flat().map((square, index) => {
             const row = Math.floor(index / 8);
             const col = index % 8;
