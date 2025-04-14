@@ -352,9 +352,7 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
     setGameStatus("");
     setMoveHistory([]);
     setCaptured([]);
-    setFocusedSquare("e2");
-    setPlayerColor(null);
-    setIsGameStarted(false);
+    setFocusedSquare(playerColor === "white" ? "e2" : "e7");
   };
   
   const startListening = () => {
@@ -435,6 +433,12 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
             🎙️ Voice Move
           </button>
         </SpeakOnHover>
+
+        <SpeakOnHover text="Back to Home" textToSpeech={textToSpeech}>
+    <button className="game-button" onClick={() => setIsGameStarted(false)}>
+      🏠 Home
+    </button>
+  </SpeakOnHover>
       </div>
   
       {/* Chessboard and move history side-by-side */}
