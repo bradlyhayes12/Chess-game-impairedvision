@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './App.css'; // (Optional: for styles)
 
 const Speak = (text, textToSpeech = true) => {
@@ -23,6 +23,12 @@ const SpeakOnHover = ({ children, text, textToSpeech = true }) => {
 };
 
 export default function AboutUs({ textToSpeech = true }) {
+  const navigate = useNavigate(); // <-- Add this!
+
+  const handleBackToGame = () => {
+    navigate('/'); // Go back to previous page
+  };
+
   return (
     <div className="about-page">
         <SpeakOnHover text="About Vision Chess" textToSpeech={textToSpeech}>
@@ -44,15 +50,21 @@ export default function AboutUs({ textToSpeech = true }) {
       </SpeakOnHover>
       <SpeakOnHover text="Developped with love by Cameron, Brad, and Farrah" textToSpeech={textToSpeech}>
       <p>
-        Developed with ❤️ by Cameron, Brad, and Farrah.
+        Developed with ❤️ by Cameron, Brad, and Farrah. 
       </p>
       </SpeakOnHover>
 
-      {/* Back button */}
-      <Link to="/">
-      <SpeakOnHover text="Back to Game" textToSpeech={textToSpeech}>
-        <button>🔙 Back to Game</button>
+      {/* Buttons Row */}
+      <div className="button-row">
+        <Link to="/">
+          <SpeakOnHover text="Back to Home" textToSpeech={textToSpeech}>
+            <button>🏠 Back to Home</button>
+          </SpeakOnHover>
+        </Link>
+
+        <SpeakOnHover text="Back to Game" textToSpeech={textToSpeech}>
+          <button onClick={handleBackToGame}>🎯 Back to Game</button>
         </SpeakOnHover>
-      </Link>
+      </div>
     </div>
   )};

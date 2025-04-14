@@ -10,6 +10,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [textToSpeech, setTextToSpeech] = useState(true);
   const [boardSize, setBoardSize] = useState('medium');
+  const [isGameStarted, setIsGameStarted] = useState(false);
 
   return (
     <div className={darkMode ? 'App dark' : 'App'}>
@@ -22,6 +23,8 @@ function App() {
                 <ChessBoard 
                   textToSpeech={textToSpeech}
                   boardSize={boardSize}
+                  isGameStarted={isGameStarted}
+                  setIsGameStarted={setIsGameStarted}
                 />
               } 
             />

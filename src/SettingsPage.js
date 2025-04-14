@@ -66,7 +66,7 @@ export default function SettingsPage({
       <div className="back-button">
         <SpeakOnHover text="Back to Home Page" textToSpeech={textToSpeech}>
           <Link to="/">
-            <button> Back to Home Page</button>
+            <button> 🏠 Back to Home</button>
           </Link>
         </SpeakOnHover>
       </div>

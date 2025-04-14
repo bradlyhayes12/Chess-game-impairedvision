@@ -131,7 +131,7 @@ const Square = ({ children, position, handleMove, isValidMove, isSelected, isFoc
   );
 };
 
-const ChessBoard = ({ textToSpeech, boardSize }) => {
+const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }) => {
   const [chess, setChess] = useState(new Chess());
   const [board, setBoard] = useState(chess.board());
   const [selected, setSelected] = useState(null);
@@ -139,12 +139,9 @@ const ChessBoard = ({ textToSpeech, boardSize }) => {
   const [gameStatus, setGameStatus] = useState("");
   const [playerColor, setPlayerColor] = useState(null);
   const [difficulty, setDifficulty] = useState("easy");
-  const [isGameStarted, setIsGameStarted] = useState(false);
   const [moveHistory, setMoveHistory] = useState([]);
   const [captured, setCaptured] = useState([]);
   const [focusedSquare, setFocusedSquare] = useState("e2");
-
-  
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
