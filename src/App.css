@@ -67,9 +67,30 @@ App {
 }
 
 .footer {
-  background-color: #1eb8f1; /* bright blue */
   text-align: center;
-  padding: 30px;
+  font-size: 0.9rem;
+  color: black;
+  background-color:  #1eb8f1; /* bright blue */
+  padding: 10px 20px;
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.footer-group {
+  margin-bottom: 10px;
+}
+
+.team-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.team-list li {
+  margin: 0;
 }
 
 /* Chessboard and side panel styles */
@@ -365,3 +386,4 @@ App {
   background-color: #1386ac;
   transform: translateY(-3px);
 }
+

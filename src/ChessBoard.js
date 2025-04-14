@@ -142,6 +142,7 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
   const [moveHistory, setMoveHistory] = useState([]);
   const [captured, setCaptured] = useState([]);
   const [focusedSquare, setFocusedSquare] = useState("e2");
+  const [aiTimeoutId, setAiTimeoutId] = useState(null);
 
   const checkGameStatus = () => {
     if (chess.isCheckmate()) {
@@ -202,7 +203,7 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
         announceCapture(move, textToSpeech);       
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
-          setTimeout(() => {
+          const timeoutId = setTimeout(() => {
             const aiMove = getAIMove(chess, difficulty);
             if (aiMove) {
               const aiMoveResult = chess.move(aiMove);
@@ -226,6 +227,8 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
               }
             }
           }, 2000);
+
+          setAiTimeoutId(timeoutId);
         }
         
       }
@@ -344,6 +347,10 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
     );
   }
   const restartGame = () => {
+    if(aiTimeoutId) {
+      clearTimeout(aiTimeoutId);
+      setAiTimeoutId(null); 
+    }
     const newGame = new Chess();
     setChess(newGame);
     setBoard(newGame.board());
