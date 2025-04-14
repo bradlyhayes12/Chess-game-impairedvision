@@ -1,70 +1,58 @@
-# Getting Started with Create React App
+# Vision Chess ♟️
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Vision Chess** is a web-based, accessible chess game that allows players to use both traditional controls and voice commands. Designed for better accessibility, Vision Chess integrates **speech recognition**, **speech synthesis**, and **drag-and-drop** mechanics to create a complete chess experience.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🎮 Features
 
-### `npm start`
+- ♟️ Drag and Drop piece movement (mouse control)
+- 🎤 Voice Commands for making moves
+- 🗣️ Text-to-Speech Narration (reads moves and game status)
+- 🧠 Play against a Computer AI (Easy, Medium, Hard difficulty)
+- 🔄 Restart Game button
+- 🏠 Back to Home button
+- ⚙️ Settings and About Us pages
+- 📱 Responsive Design for Desktop and Mobile
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ Technologies Used
 
-### `npm test`
+- [React](https://reactjs.org/) — Frontend Framework
+- [React Router DOM](https://reactrouter.com/) — Page Routing
+- [React DnD](https://react-dnd.github.io/react-dnd/about) — Drag and Drop support
+- [Chess.js](https://github.com/jhlywa/chess.js) — Chess move generation and validation
+- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) — Voice recognition and speech synthesis
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 👨‍💻 Team Members
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Brad Hayes
+- Cameron Salazar
+- Farrah Omar
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🚀 Getting Started
 
-### `npm run eject`
+### 1. Clone the repository:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+git clone https://github.com/yourusername/vision-chess.git
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 2. Navigate into the project folder:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+cd vision-chess
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 3. Install dependencies:
 
-## Learn More
+```bash
+cd vision-chess
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 4. Start the app:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-### `npm install chess.js and npm install react-dnd react-dnd-html5-backend npm install react-router-dom`
+```bash
+cd vision-chess
