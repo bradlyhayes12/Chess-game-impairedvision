@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './App.css'; // (Optional: for styles)
+import './AboutUs.css'; // (Optional: for styles)
 
 const Speak = (text, textToSpeech = true) => {
   if (!textToSpeech) return; 

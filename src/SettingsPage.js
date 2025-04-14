@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate} from 'react-router-dom';
 import './SettingsPage.css';
 
 const Speak = (text, textToSpeech = true) => {
@@ -27,6 +27,12 @@ export default function SettingsPage({
   textToSpeech, setTextToSpeech, 
   boardSize, setBoardSize 
 }) {
+
+  const navigate = useNavigate(); // <-- Add this!
+
+  const handleBackToGame = () => {
+    navigate('/'); // Go back to previous page
+  };
 
   const handleDarkModeToggle = () => {
     setDarkMode(prev => !prev);
@@ -58,9 +64,7 @@ export default function SettingsPage({
       </SpeakOnHover>
       <SpeakOnHover text="Back to Game" textToSpeech={textToSpeech}>
       <div className="back-button">
-        <Link to="/">
-          <button>🔙 Back to Game</button>
-        </Link>
+          <button onClick={handleBackToGame}>🔙 Back to Game</button>
       </div>
       </SpeakOnHover>
       <div className="back-button">
