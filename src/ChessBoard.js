@@ -199,7 +199,6 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
         setSelected(null);
         setValidMoves([]);
         setMoveHistory(prev => [...prev, move.san]);
-        // Speak(`${color} ${pieceName} to ${toSquare}`, textToSpeech);
         announceCapture(move, textToSpeech);       
 
         if (chess.turn() !== (playerColor === "white" ? "w" : "b")) {
@@ -390,7 +389,16 @@ const ChessBoard = ({ textToSpeech, boardSize, isGameStarted, setIsGameStarted }
     }
   
     const to = squareMatch[0].toLowerCase();
-    const pieceType = pieceMatch ? pieceMatch[0].toLowerCase()[0] : null;
+    const pieceTypeMap = {
+      pawn: 'p',
+      knight: 'n',
+      bishop: 'b',
+      rook: 'r',
+      queen: 'q',
+      king: 'k',
+    }
+
+    const pieceType = pieceMatch ? pieceTypeMap[pieceMatch[0].toLowerCase()] : null;
   
     const allMoves = chess.moves({ verbose: true });
   
