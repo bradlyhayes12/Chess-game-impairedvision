@@ -42,17 +42,17 @@
 ```bash
 git clone https://github.com/yourusername/vision-chess.git
 
-### 2. Navigate into the project folder:
+2. Navigate into the project folder:
 
 ```bash
 cd vision-chess
 
-### 3. Install dependencies:
+3. Install dependencies:
 
 ```bash
 cd vision-chess
 
-### 4. Start the app:
+4. Start the app:
 
 ```bash
 cd vision-chess
