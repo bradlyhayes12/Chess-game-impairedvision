@@ -40,7 +40,7 @@
 ### 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/vision-chess.git
+git clone https://github.com/bradlyhayes12/Chess-game-impairedvision
 ```
 
 ### 2. Navigate into the project folder:
