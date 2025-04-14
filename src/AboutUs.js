@@ -50,7 +50,7 @@ export default function AboutUs({ textToSpeech = true }) {
 
       {/* Back button */}
       <Link to="/">
-      <SpeakOnHover text="Back to Game">
+      <SpeakOnHover text="Back to Game" textToSpeech={textToSpeech}>
         <button>🔙 Back to Game</button>
         </SpeakOnHover>
       </Link>

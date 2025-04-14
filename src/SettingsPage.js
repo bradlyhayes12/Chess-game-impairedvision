@@ -63,6 +63,13 @@ export default function SettingsPage({
         </Link>
       </div>
       </SpeakOnHover>
+      <div className="back-button">
+        <SpeakOnHover text="Back to Home Page" textToSpeech={textToSpeech}>
+          <Link to="/">
+            <button> Back to Home Page</button>
+          </Link>
+        </SpeakOnHover>
+      </div>
 
       <div className="setting-item">
         <label>Dark Mode:</label>
