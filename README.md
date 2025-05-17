@@ -52,10 +52,10 @@ cd vision-chess
 ### 3. Install dependencies:
 
 ```bash
-cd vision-chess
+npm install
 ```
 
 ### 4. Start the app:
 
 ```bash
-cd vision-chess
+npm start
